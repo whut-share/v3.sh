@@ -370,13 +370,13 @@ use_debian_pm2(){
 	chmod +x /usr/bin/ssrr
     #创建pm2日志清理
     rm -rf "/var/spool/cron/crontabs/root"
-    if [ ! -f /root/ddns/cf-ddns.sh ] ; then
-            echo "未检测到cf-ddns.sh"
+    if [ ! -f /root/ddns/nc-ddns.sh ] ; then
+            echo "未检测到nc-ddns.sh"
     else
 	    echo "添加DDNS定时启动"
         sleep 2s
         echo '###DDNS' >> /var/spool/cron/crontabs/root
-        echo '*/10 * * * * bash /root/ddns/cf-ddns.sh >> /dev/null/cron_log.txt' >> /var/spool/cron/crontabs/root
+        echo '*/10 * * * * bash /root/ddns/nc-ddns.sh >> /dev/null/cron_log.txt' >> /var/spool/cron/crontabs/root
     fi
 
     if [ ! -f /usr/local/gost/gostproxy ] ; then
@@ -852,65 +852,12 @@ install_node(){
 
 	# 取消文件数量限制
 	sed -i '$a * hard nofile 512000\n* soft nofile 512000' /etc/security/limits.conf
+    iptables -P INPUT ACCEPT
+    iptables -F
+    iptables -X
 
-	#帮助信息
-	echo "#########################################################################################
-【前端地址填写规范】
-[1]填写IP，需包含http://，例如：http://123.123.123.123
-[2]填写域名，需包含http:// 或 https://，例如：https://ssr.domain.com
-注意：前端地址若为域名且为https站点，请确保https配置正确(浏览器访问不提示错误即可)
 
-【mukey填写规范】
-若没有修改过前端的/home/wwwroot/default/.config.php文件中的$System_Config['muKey']项
-则设置该项时，回车即可。若您修改了该项，请输入您设置的值
-
-【节点ID填写规范】
-前端搭建完成后，访问前端地址，使用默认管理员账户登陆，管理面板，节点列表，点击右下角的+号
-设置节点信息，需要注意的是，节点地址可填域名或IP，节点IP只能填节点IP，设置完成后点添加
-返回节点列表，就能看到你刚刚添加的节点的节点ID
 #########################################################################################"
-	#获取节点信息
-	read -e -p "前端地址是:" Userdomain
-	read -e -p "节点ID是:" UserNODE_ID
-	read -e -p "MuKey是:" Usermukey
-        install_ssr_for_each
-	#配置节点信息
-	cd /root/shadowsocks-${Username}
-	#备份
-	cp /root/shadowsocks-${Username}/userapiconfig.py /root/shadowsocks-${Username}/userapiconfig.py.bak
-	#修改
-	Userdomain=${Userdomain:-"http://${server_ip}"}
-	sed -i "s#http://zhaoj.in#${Userdomain}#" /root/shadowsocks-${Username}/userapiconfig.py
-	Usermukey=${Usermukey:-"mupass"}
-	sed -i "s#glzjin#${Usermukey}#" /root/shadowsocks-${Username}/userapiconfig.py
-	UserNODE_ID=${UserNODE_ID:-"3"}
-	sed -i '2d' /root/shadowsocks-${Username}/userapiconfig.py
-	sed -i "2a\NODE_ID = ${UserNODE_ID}" /root/shadowsocks-${Username}/userapiconfig.py
-	#启用supervisord
-	echo_supervisord_conf > /etc/supervisord.conf
-	sed -i '$a [program:ssr]\ncommand = python /root/shadowsocks-${Username}/server.py\nuser = root\nautostart = true\nautorestart = true' /etc/supervisord.conf
-	supervisord
-	#iptables
-	iptables -P INPUT ACCEPT
-	iptables -F
-	iptables -F
-	iptables -X
-	#iptables -I INPUT -p tcp -m tcp --dport 22:65535 -j ACCEPT
-	#iptables -I INPUT -p udp -m udp --dport 22:65535 -j ACCEPT
-	iptables-save >/etc/sysconfig/iptables
-	iptables-save >/etc/sysconfig/iptables
-	echo 'iptables-restore /etc/sysconfig/iptables' >> /etc/rc.local
-	echo "/usr/bin/supervisord -c /etc/supervisord.conf" >> /etc/rc.local
-	chmod +x /etc/rc.d/rc.local
-	#创建快捷重启命令
-	rm -rf /usr/bin/srs
-	echo "#!/bin/bash" >> /usr/bin/srs
-	echo "pm2 restart all" >> /usr/bin/srs
-	chmod +x /usr/bin/srs
-	#最后配置
-	#/usr/bin/supervisord -c /etc/supervisord.conf
-	pm2 restart ssr
-	#完成提示
 	clear;echo "########################################
 # SS NODE 已安装完成                   #
 ########################################
@@ -1103,60 +1050,67 @@ ddns(){
     echo "选项：[1]安装 [2]配置 [3]运行"
 	read ddns
 	if [ ${ddns} = '1' ]; then
-	    if [ ! -f /root/ddns/cf-ddns.sh ]; then
+	    if [ ! -f /root/ddns/nc-ddns.sh ]; then
 	    	echo "DDNS未配置，开始下载";
 	    	wget -N —no-check-certificate "https://github.com/Super-box/v3/raw/master/cf-ddns.sh" -P /root/ddns
-	    	chmod +x /root/ddns/cf-ddns.sh
+	    	chmod +x /root/ddns/nc-ddns.sh
 	    fi
 	    #清屏
 		clear
 		#获取新配置信息
-		read -e -p "新的DDNS地址是:" CFRECORD_NAME
-		#修改
-		CFRECORD_NAME=${CFRECORD_NAME}
-		sed -i "s#aaa.yahaha.pro#${<C></C>FRECORD_NAME}#" /root/ddns/cf-ddns.sh
-		#运行
-		bash /root/ddns/cf-ddns.sh
+		read -e -p "新的Domain地址是:" NCRECORD_NAME
+		#获取新配置信息
+		read -e -p "新的subDomain地址是:" NCRECORD_SUB_NAME
 
-        elif [ ${ddns} = '2' ]; then
+		read -e -p "新的pass是:" NCRECORD_PASS
+		#修改
+		NCRECORD_NAME=${NCRECORD_NAME}
+		NCRECORD_SUB_NAME=${NCRECORD_SUB_NAME}
+		NCRECORD_PASS=${NCRECORD_PASS}
+		sed -i "s#cat.cc#${<C></C>NCRECORD_NAME}#" /root/ddns/nc-ddns.sh
+		sed -i "s#subsubname#${<C></C>NCRECORD_SUB_NAME}#" /root/ddns/nc-ddns.sh
+		sed -i "s#subpasswd#${<C></C>NCRECORD_PASS}#" /root/ddns/nc-ddns.sh
+		#运行
+		bash /root/ddns/nc-ddns.sh
+
+    elif [ ${ddns} = '2' ]; then
 		#清屏
 		clear
 		#输出当前配置
 		echo "当前DDNS配置如下:"
 		echo "------------------------------------"
-		sed -n '6p' /root/ddns/cf-ddns.sh
-		sed -n '7p' /root/ddns/cf-ddns.sh
+		sed -n '3p' /root/ddns/nc-ddns.sh
+		sed -n '4p' /root/ddns/nc-ddns.sh
+		sed -n '5p' /root/ddns/nc-ddns.sh
 		echo "------------------------------------"
 		#获取新配置信息
 		read -e -p "新的DDNS地址是:" CFRECORD_NAME
-			#检查
-			if [ ! -f /root/ddns/cf-ddns.sh.bak ]; then
-				rm -rf /root/ddns/cloud* && rm -rf /root/ddns/ip*
-				wget -N —no-check-certificate "https://github.com/Super-box/v3/raw/master/cf-ddns.sh" -P /root/ddns
-			else
-			#还原
-				rm -rf /root/ddns/cf-ddns.sh && rm -rf /root/ddns/cloud* && rm -rf /root/ddns/ip*
-				cp /root/ddns/cf-ddns.sh.bak /root/ddns/cf-ddns.sh
-			fi
+		read -e -p "新的subDomain地址是:" NCRECORD_SUB_NAME
+
+		wget -N —no-check-certificate "https://github.com/Super-box/v3/raw/master/cf-ddns.sh" -P /root/ddns
+
 		#修改
-		CFRECORD_NAME=${CFRECORD_NAME}
-		sed -i "s#aaa.yahaha.pro#${CFRECORD_NAME}#" /root/ddns/cf-ddns.sh
-                #运行
-                rm -rf /root/ddns/cloud* && rm -rf /root/ddns/ip*
-                bash /root/ddns/cf-ddns.sh
-        elif [ ${ddns} = '3' ]; then
-		#判断/var/swapfile1文件是否存在
-		if [ ! -f /root/ddns/cf-ddns.sh ]; then
+	    NCRECORD_NAME=${NCRECORD_NAME}
+		NCRECORD_SUB_NAME=${NCRECORD_SUB_NAME}
+		NCRECORD_PASS=${NCRECORD_PASS}
+		sed -i "s#cat.cc#${<C></C>NCRECORD_NAME}#" /root/ddns/nc-ddns.sh
+		sed -i "s#subsubname#${<C></C>NCRECORD_SUB_NAME}#" /root/ddns/nc-ddns.sh
+		sed -i "s#subpasswd#${<C></C>NCRECORD_PASS}#" /root/ddns/nc-ddns.sh
+
+        bash /root/ddns/nc-ddns.sh
+    elif [ ${ddns} = '3' ]; then
+		if [ ! -f /root/ddns/nc-ddns.sh ]; then
  		    echo "检查到您未安装ddns"
 		else
 	        echo "当前DDNS配置如下:"
 		    echo "------------------------------------"
-		    sed -n '36p' /root/ddns/cf-ddns.sh
-		    sed -n '39p' /root/ddns/cf-ddns.sh
+            sed -n '3p' /root/ddns/nc-ddns.sh
+		    sed -n '4p' /root/ddns/nc-ddns.sh
+		    sed -n '5p' /root/ddns/nc-ddns.sh
 		    echo "------------------------------------"
 		fi
 		    #运行
-		    bash /root/ddns/cf-ddns.sh
+		    bash /root/ddns/nc-ddns.sh
 	else
 		echo "选项不在范围.";exit 0
 	fi
