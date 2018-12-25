@@ -1067,9 +1067,9 @@ ddns(){
         NCRECORD_NAME=${NCRECORD_NAME}
         NCRECORD_SUB_NAME=${NCRECORD_SUB_NAME}
         NCRECORD_PASS=${NCRECORD_PASS}
-        sed -i "s#cat.cc#${<C></C>NCRECORD_NAME}#" /root/ddns/nc-ddns.sh
-        sed -i "s#subsubname#${<C></C>NCRECORD_SUB_NAME}#" /root/ddns/nc-ddns.sh
-        sed -i "s#subpasswd#${<C></C>NCRECORD_PASS}#" /root/ddns/nc-ddns.sh
+        sed -i "s#cat.cc#${NCRECORD_NAME}#" /root/ddns/nc-ddns.sh
+        sed -i "s#sub.cat.cc#${NCRECORD_SUB_NAME}#" /root/ddns/nc-ddns.sh
+        sed -i "s#ncdomainpasswd#${NCRECORD_PASS}#" /root/ddns/nc-ddns.sh
 
 		#运行
 		bash /root/ddns/nc-ddns.sh
@@ -1093,9 +1093,9 @@ ddns(){
         NCRECORD_NAME=${NCRECORD_NAME}
         NCRECORD_SUB_NAME=${NCRECORD_SUB_NAME}
         NCRECORD_PASS=${NCRECORD_PASS}
-        sed -i "s#cat.cc#${<C></C>NCRECORD_NAME}#" /root/ddns/nc-ddns.sh
-        sed -i "s#subsubname#${<C></C>NCRECORD_SUB_NAME}#" /root/ddns/nc-ddns.sh
-        sed -i "s#subpasswd#${<C></C>NCRECORD_PASS}#" /root/ddns/nc-ddns.sh
+        sed -i "s#cat.cc#${NCRECORD_NAME}#" /root/ddns/nc-ddns.sh
+        sed -i "s#sub.cat.cc#${NCRECORD_SUB_NAME}#" /root/ddns/nc-ddns.sh
+        sed -i "s#ncdomainpasswd#${NCRECORD_PASS}#" /root/ddns/nc-ddns.sh
 
         bash /root/ddns/nc-ddns.sh
     elif [ ${ddns} = '3' ]; then
