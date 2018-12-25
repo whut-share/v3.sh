@@ -10,7 +10,7 @@ Green_font_prefix="\033[32m" && Red_font_prefix="\033[31m" && Green_background_p
 Info="${Green_font_prefix}[信息]${Font_color_suffix}"
 Error="${Red_font_prefix}[错误]${Font_color_suffix}"
 Tip="${Green_font_prefix}[注意]${Font_color_suffix}"
-
+Libsodiumr_file="/usr/local/lib/libsodium.so"
 
 #开始菜单
 start_menu(){
@@ -709,8 +709,26 @@ install_centos_ssr(){
 
 	git clone -b 456Dev "https://github.com/old-boys/shadowsocks.git" "/root/shadowsocks-${Username}"
 
+	read -e -p "节点ID是:" UserNodeId
+	read -e -p "数据库地址是:" UserDbHost
+	read -e -p "数据库名称:" UserDbName
+	read -e -p "数据库用户:" UserDbUser
+	read -e -p "数据库密码:" UserDbPass
+
+    sed -i "2s#1#${UserNodeId}#" /root/shadowsocks-${Username}/userapiconfig.py
+    sed -i "27s#127.0.0.1#${UserDbHost}#" /root/shadowsocks-${Username}/userapiconfig.py
+    sed -i "29s#ss#${UserDbUser}#" /root/shadowsocks-${Username}/userapiconfig.py
+    sed -i "30s#ss#${UserDbPass}#" /root/shadowsocks-${Username}/userapiconfig.py
+    sed -i "31s#shadowsocks#${UserDbName}#" /root/shadowsocks-${Username}/userapiconfig.py
+
 	#更换DNS至8888/1001
-	/usr/bin/chattr -i /etc/resolv.conf && wget -N https://github.com/Super-box/v3/raw/master/resolv.conf -P /etc && /usr/bin/chattr +i /etc/resolv.conf
+    if grep -Fq "8.8.8.8" "/etc/resolv.conf"
+    then
+        echo "已经update resolv.conf"
+    else
+	    /usr/bin/chattr -i /etc/resolv.conf && wget -N https://github.com/Super-box/v3/raw/master/resolv.conf -P /etc && /usr/bin/chattr +i /etc/resolv.conf
+    fi
+
 	cd /root
 	Get_Dist_Version
 
@@ -734,8 +752,17 @@ install_centos_ssr(){
 	fi
 
 	python -m pip install --upgrade pip
-    wget -N --no-check-certificate https://raw.githubusercontent.com/whut-share/doubi/master/libsodium.sh && chmod +x libsodium.sh && bash libsodium.sh
-	rm -rf libsodium.sh
+
+    if [[ -e ${Libsodiumr_file} ]]; then
+		echo -e "libsodium 已安装"
+	else
+		echo -e "libsodium 未安装，开始安装..."
+        wget https://raw.githubusercontent.com/mmmwhy/ss-panel-and-ss-py-mu/master/libsodium-1.0.13.tar.gz
+	    tar xf libsodium-1.0.13.tar.gz && cd libsodium-1.0.13
+	    ./configure && make -j2 && make install
+	    echo /usr/local/lib > /etc/ld.so.conf.d/usr_local_lib.conf
+        ldconfig
+    fi
 
 	cd /root/shadowsocks-${Username}
 
@@ -777,10 +804,27 @@ install_ubuntu_ssr(){
 
 	apt-get -y update
 	apt-get -y install build-essential wget iptables git supervisor lsof python-pip
-	#编译安装libsodium
-    wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/libsodium.sh && chmod +x libsodium.sh && bash libsodium.sh
 
-    rm -rf libsodium.sh
+	#更换DNS至8888/1001
+    if grep -Fq "8.8.8.8" "/etc/resolv.conf"
+    then
+        echo "已经update resolv.conf"
+    else
+	    /usr/bin/chattr -i /etc/resolv.conf && wget -N https://github.com/Super-box/v3/raw/master/resolv.conf -P /etc && /usr/bin/chattr +i /etc/resolv.conf
+    fi
+
+	#编译安装libsodium
+    if [[ -e ${Libsodiumr_file} ]]; then
+		echo -e "libsodium 已安装"
+	else
+		echo -e "libsodium 未安装，开始安装..."
+        wget https://raw.githubusercontent.com/mmmwhy/ss-panel-and-ss-py-mu/master/libsodium-1.0.13.tar.gz
+	    tar xf libsodium-1.0.13.tar.gz && cd libsodium-1.0.13
+	    ./configure && make -j2 && make install
+	    echo /usr/local/lib > /etc/ld.so.conf.d/usr_local_lib.conf
+        ldconfig
+    fi
+
 	pip install cymysql -i https://pypi.org/simple/
 
 	#clone shadowsocks
@@ -850,6 +894,7 @@ install_node(){
 		fi
 	}
 
+    install_ssr_for_each
 	# 取消文件数量限制
 	sed -i '$a * hard nofile 512000\n* soft nofile 512000' /etc/security/limits.conf
     iptables -P INPUT ACCEPT
