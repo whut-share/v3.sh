@@ -261,13 +261,13 @@ use_centos_pm2(){
     #创建pm2日志清理
     cp "/var/spool/cron/root" "/var/spool/cron/root.bak"
     rm -rf "/var/spool/cron/root"
-    if [ ! -f /root/ddns/cf-ddns.sh ] ; then
-        echo "未检测到cf-ddns.sh"
+    if [ ! -f /root/ddns/nc-ddns.sh ] ; then
+        echo "未检测到nc-ddns.sh"
     else
 	    echo "添加DDNS定时启动"
         sleep 2s
         echo '###DDNS' >> /var/spool/cron/root
-        echo '*/10 * * * * bash /root/ddns/cf-ddns.sh >> /dev/null/cron_log.txt' >> /var/spool/cron/root
+        echo '*/10 * * * * bash /root/ddns/nc-ddns.sh >> /dev/null/cron_log.txt' >> /var/spool/cron/root
     fi
     if [ ! -f /root/Application/telegram-socks/server.js ] ; then
         echo "未检测到socks5"
@@ -1052,8 +1052,8 @@ ddns(){
 	if [ ${ddns} = '1' ]; then
 	    if [ ! -f /root/ddns/nc-ddns.sh ]; then
 	    	echo "DDNS未配置，开始下载";
-	    	wget -N —no-check-certificate "https://github.com/Super-box/v3/raw/master/cf-ddns.sh" -P /root/ddns
-	    	chmod +x /root/ddns/nc-ddns.sh
+            wget -N —no-check-certificate "https://raw.githubusercontent.com/whut-share/v6/master/nc-ddns.sh" -P /root/ddns
+            chmod +x /root/ddns/nc-ddns.sh
 	    fi
 	    #清屏
 		clear
@@ -1064,12 +1064,13 @@ ddns(){
 
 		read -e -p "新的pass是:" NCRECORD_PASS
 		#修改
-		NCRECORD_NAME=${NCRECORD_NAME}
-		NCRECORD_SUB_NAME=${NCRECORD_SUB_NAME}
-		NCRECORD_PASS=${NCRECORD_PASS}
-		sed -i "s#cat.cc#${<C></C>NCRECORD_NAME}#" /root/ddns/nc-ddns.sh
-		sed -i "s#subsubname#${<C></C>NCRECORD_SUB_NAME}#" /root/ddns/nc-ddns.sh
-		sed -i "s#subpasswd#${<C></C>NCRECORD_PASS}#" /root/ddns/nc-ddns.sh
+        NCRECORD_NAME=${NCRECORD_NAME}
+        NCRECORD_SUB_NAME=${NCRECORD_SUB_NAME}
+        NCRECORD_PASS=${NCRECORD_PASS}
+        sed -i "s#cat.cc#${<C></C>NCRECORD_NAME}#" /root/ddns/nc-ddns.sh
+        sed -i "s#subsubname#${<C></C>NCRECORD_SUB_NAME}#" /root/ddns/nc-ddns.sh
+        sed -i "s#subpasswd#${<C></C>NCRECORD_PASS}#" /root/ddns/nc-ddns.sh
+
 		#运行
 		bash /root/ddns/nc-ddns.sh
 
@@ -1084,18 +1085,17 @@ ddns(){
 		sed -n '5p' /root/ddns/nc-ddns.sh
 		echo "------------------------------------"
 		#获取新配置信息
-		read -e -p "新的DDNS地址是:" CFRECORD_NAME
-		read -e -p "新的subDomain地址是:" NCRECORD_SUB_NAME
+        read -e -p "新的DDNS地址是:" CFRECORD_NAME
+        read -e -p "新的subDomain地址是:" NCRECORD_SUB_NAME
 
-		wget -N —no-check-certificate "https://github.com/Super-box/v3/raw/master/cf-ddns.sh" -P /root/ddns
-
+        wget -N —no-check-certificate "https://raw.githubusercontent.com/whut-share/v6/master/nc-ddns.sh" -P /root/ddns
 		#修改
-	    NCRECORD_NAME=${NCRECORD_NAME}
-		NCRECORD_SUB_NAME=${NCRECORD_SUB_NAME}
-		NCRECORD_PASS=${NCRECORD_PASS}
-		sed -i "s#cat.cc#${<C></C>NCRECORD_NAME}#" /root/ddns/nc-ddns.sh
-		sed -i "s#subsubname#${<C></C>NCRECORD_SUB_NAME}#" /root/ddns/nc-ddns.sh
-		sed -i "s#subpasswd#${<C></C>NCRECORD_PASS}#" /root/ddns/nc-ddns.sh
+        NCRECORD_NAME=${NCRECORD_NAME}
+        NCRECORD_SUB_NAME=${NCRECORD_SUB_NAME}
+        NCRECORD_PASS=${NCRECORD_PASS}
+        sed -i "s#cat.cc#${<C></C>NCRECORD_NAME}#" /root/ddns/nc-ddns.sh
+        sed -i "s#subsubname#${<C></C>NCRECORD_SUB_NAME}#" /root/ddns/nc-ddns.sh
+        sed -i "s#subpasswd#${<C></C>NCRECORD_PASS}#" /root/ddns/nc-ddns.sh
 
         bash /root/ddns/nc-ddns.sh
     elif [ ${ddns} = '3' ]; then
