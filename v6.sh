@@ -68,7 +68,7 @@ case "$num" in
 	g)
 	replacement_of_installation_source;;
 	x)
-	rm -rf /usr/bin/v3 && cp /root/v3.sh /usr/bin/v3 && chmod +x /usr/bin/v3
+	rm -rf /usr/bin/v6 && cp /root/v6.sh /usr/bin/v6 && chmod +x /usr/bin/v6
 	v3;;
 	y)
 	update_the_shell;;
@@ -1420,11 +1420,12 @@ configure_firewall(){
 }
 
 update_the_shell(){
-		rm -rf /root/v3.sh v3.sh.*
-		wget -N "https://github.com/Super-box/v3/raw/master/v3.sh" /root/v3.sh
-	        #将脚本作为命令放置在/usr/bin目录内,最后执行
-	        rm -rf /usr/bin/v3;cp /root/v3.sh /usr/bin/v3;chmod +x /usr/bin/v3
-	        v3
+	rm -rf /root/v6.sh v6.sh.*
+	wget -N "https://raw.githubusercontent.com/whut-share/v6/master/v6.sh " /root/v6.sh
+
+	#将脚本作为命令放置在/usr/bin目录内,最后执行
+	rm -rf /usr/bin/v6;cp /root/v6.sh /usr/bin/v6;chmod +x /usr/bin/v6
+	v6
 }
 
 ###待更新
@@ -1467,12 +1468,12 @@ install_fail2ban(){
 }
 
 install_shell(){
-	if [ ! -f /usr/bin/v3 ]; then
-		cp /root/v3.sh /usr/bin/v3 && chmod +x /usr/bin/v3
+	if [ ! -f /usr/bin/v6 ]; then
+		cp /root/v6.sh /usr/bin/v6 && chmod +x /usr/bin/v6
 	else
-		rm -rf /usr/bin/v3
-		cp /root/v3.sh /usr/bin/v3 && chmod +x /usr/bin/v3
-		clear;echo "Tips:您可通过命令[v3]快速启动本脚本!"
+		rm -rf /usr/bin/v6
+		cp /root/v6.sh /usr/bin/v6 && chmod +x /usr/bin/v6
+		clear;echo "Tips:您可通过命令[v6]快速启动本脚本!"
 	fi
 }
 
