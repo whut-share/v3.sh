@@ -676,32 +676,6 @@ Get_Dist_Version()
     fi
 }
 
-python_test(){
-	#测速决定使用哪个源
-	tsinghua='pypi.tuna.tsinghua.edu.cn'
-	pypi='mirror-ord.pypi.io'
-	doubanio='pypi.doubanio.com'
-	pubyun='pypi.pubyun.com'
-	tsinghua_PING=`ping -c 1 -w 1 $tsinghua|grep time=|awk '{print $8}'|sed "s/time=//"`
-	pypi_PING=`ping -c 1 -w 1 $pypi|grep time=|awk '{print $8}'|sed "s/time=//"`
-	doubanio_PING=`ping -c 1 -w 1 $doubanio|grep time=|awk '{print $8}'|sed "s/time=//"`
-	pubyun_PING=`ping -c 1 -w 1 $pubyun|grep time=|awk '{print $8}'|sed "s/time=//"`
-	echo "$tsinghua_PING $tsinghua" > ping.pl
-	echo "$pypi_PING $pypi" >> ping.pl
-	echo "$doubanio_PING $doubanio" >> ping.pl
-	echo "$pubyun_PING $pubyun" >> ping.pl
-	pyAddr=`sort -V ping.pl|sed -n '1p'|awk '{print $2}'`
-	if [ "$pyAddr" == "$tsinghua" ]; then
-		pyAddr='https://pypi.tuna.tsinghua.edu.cn/simple'
-	elif [ "$pyAddr" == "$pypi" ]; then
-		pyAddr='https://mirror-ord.pypi.io/simple'
-	elif [ "$pyAddr" == "$doubanio" ]; then
-		pyAddr='http://pypi.doubanio.com/simple --trusted-host pypi.doubanio.com'
-	elif [ "$pyAddr" == "$pubyun_PING" ]; then
-		pyAddr='http://pypi.pubyun.com/simple --trusted-host pypi.pubyun.com'
-	fi
-	rm -f ping.pl
-}
 
 install_centos_ssr(){
     read -e -p "后端名字是:(默认: idou):" Username
@@ -732,26 +706,33 @@ install_centos_ssr(){
 	cd /root
 	Get_Dist_Version
 
-	yum -y update --exclude=kernel*
-	yum -y install git gcc python-setuptools lsof lrzsz python-devel libffi-devel openssl-devel iptables iptables-services
-	yum -y groupinstall "Development Tools"
-	yum -y install python-pip
-	#第二次pip supervisor是否安装成功
-	if [ -z "`pip`" ]; then
-    curl -O https://bootstrap.pypa.io/get-pip.py
-		python get-pip.py
-		rm -rf *.py
-	fi
-	#第三次检测pip supervisor是否安装成功
-	if [ -z "`pip`" ]; then
-		if [ -z "`easy_install`"]; then
-            wget http://peak.telecommunity.com/dist/ez_setup.py
-		    python ez_setup.py
+	if [ ! -f /root/.update ]; then
+		yum -y update --exclude=kernel*
+		yum -y install git gcc python-setuptools lsof lrzsz python-devel libffi-devel openssl-devel iptables iptables-services
+		yum -y groupinstall "Development Tools"
+		yum -y install python-pip
+		#第二次pip supervisor是否安装成功
+		if [ -z "`pip`" ]; then
+		curl -O https://bootstrap.pypa.io/get-pip.py
+			python get-pip.py
+			rm -rf *.py
 		fi
-		easy_install pip
+		#第三次检测pip supervisor是否安装成功
+		if [ -z "`pip`" ]; then
+			if [ -z "`easy_install`"]; then
+				wget http://peak.telecommunity.com/dist/ez_setup.py
+				python ez_setup.py
+			fi
+			easy_install pip
+		fi
+
+		python -m pip install --upgrade pip
+
+		pip install -I requests==2.9
+
+		touch /root/.update
 	fi
 
-	python -m pip install --upgrade pip
 
     if [[ -e ${Libsodiumr_file} ]]; then
 		echo -e "libsodium 已安装"
@@ -767,14 +748,9 @@ install_centos_ssr(){
 	cd /root/shadowsocks-${Username}
 
 	#第一次安装
-	pip install -I requests==2.9
-	python_test
 	pip install -r requirements.txt
-	#第二次检测是否安装成功
-	if [ -z "`python -c 'import requests;print(requests)'`" ]; then
-		pip install -r requirements.txt #用自带的源试试再装一遍
-	fi
-	#第三次检测是否成功
+
+	#第二次检测是否成功
 	if [ -z "`python -c 'import requests;print(requests)'`" ]; then
 		mkdir python && cd python
 		git clone https://github.com/shazow/urllib3.git && cd urllib3
@@ -799,11 +775,15 @@ install_ubuntu_ssr(){
     read -e -p "后端名字是:(默认: idou):" Username
 	[[ -z ${Username} ]] && Username="idou"
 
-
 	git clone -b 456Dev "https://github.com/old-boys/shadowsocks.git" "/root/shadowsocks-${Username}"
 
-	apt-get -y update
-	apt-get -y install build-essential wget iptables git supervisor lsof python-pip
+	if [ ! -f /root/.update ]; then
+		apt-get -y update
+		apt-get -y install build-essential wget iptables git supervisor lsof python-pip
+		pip install -I requests==2.9
+
+		touch /root/.update
+	fi
 
 	#更换DNS至8888/1001
     if grep -Fq "8.8.8.8" "/etc/resolv.conf"
@@ -833,14 +813,8 @@ install_ubuntu_ssr(){
 	cd /root/shadowsocks-${Username}
 
 	#第一次安装
-	pip install -I requests==2.9
-	python_test
-	pip install -r requirements.txt -i $pyAddr
-	#第二次检测是否安装成功
-	if [ -z "`python -c 'import requests;print(requests)'`" ]; then
-		pip install -r requirements.txt #用自带的源试试再装一遍
-	fi
-	#第三次检测是否成功
+	pip install -r requirements.txt
+	#第二次检测是否成功
 	if [ -z "`python -c 'import requests;print(requests)'`" ]; then
 		mkdir python && cd python
 		git clone https://github.com/shazow/urllib3.git && cd urllib3
