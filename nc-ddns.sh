@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 GLOBIGNORE="*"
 DOMAIN="cat.cc"
-SUBDOMAIN="sub.cat.cc"
+SUBDOMAINS="sub.cat.cc"
 NC_DDNS_PASS="ncdomainpasswd"
 # for a domain you own hosted at namecheap, register one or more subdomains
 # to an IP address in namecheaps dynamicdns system

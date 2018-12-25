@@ -1067,9 +1067,9 @@ ddns(){
         NCRECORD_NAME=${NCRECORD_NAME}
         NCRECORD_SUB_NAME=${NCRECORD_SUB_NAME}
         NCRECORD_PASS=${NCRECORD_PASS}
-        sed -i "s#cat.cc#${NCRECORD_NAME}#" /root/ddns/nc-ddns.sh
-        sed -i "s#sub.cat.cc#${NCRECORD_SUB_NAME}#" /root/ddns/nc-ddns.sh
-        sed -i "s#ncdomainpasswd#${NCRECORD_PASS}#" /root/ddns/nc-ddns.sh
+        sed -i "3s#cat.cc#${NCRECORD_NAME}#" /root/ddns/nc-ddns.sh
+        sed -i "4s#sub.cat.cc#${NCRECORD_SUB_NAME}#" /root/ddns/nc-ddns.sh
+        sed -i "5s#ncdomainpasswd#${NCRECORD_PASS}#" /root/ddns/nc-ddns.sh
 
 		#运行
 		bash /root/ddns/nc-ddns.sh
@@ -1088,14 +1088,15 @@ ddns(){
         read -e -p "新的DDNS地址是:" CFRECORD_NAME
         read -e -p "新的subDomain地址是:" NCRECORD_SUB_NAME
 
+        rm -rf /root/ddns
         wget -N —no-check-certificate "https://raw.githubusercontent.com/whut-share/v6/master/nc-ddns.sh" -P /root/ddns
 		#修改
         NCRECORD_NAME=${NCRECORD_NAME}
         NCRECORD_SUB_NAME=${NCRECORD_SUB_NAME}
         NCRECORD_PASS=${NCRECORD_PASS}
-        sed -i "s#cat.cc#${NCRECORD_NAME}#" /root/ddns/nc-ddns.sh
-        sed -i "s#sub.cat.cc#${NCRECORD_SUB_NAME}#" /root/ddns/nc-ddns.sh
-        sed -i "s#ncdomainpasswd#${NCRECORD_PASS}#" /root/ddns/nc-ddns.sh
+        sed -i "3s#cat.cc#${NCRECORD_NAME}#" /root/ddns/nc-ddns.sh
+        sed -i "4s#sub.cat.cc#${NCRECORD_SUB_NAME}#" /root/ddns/nc-ddns.sh
+        sed -i "5s#ncdomainpasswd#${NCRECORD_PASS}#" /root/ddns/nc-ddns.sh
 
         bash /root/ddns/nc-ddns.sh
     elif [ ${ddns} = '3' ]; then
