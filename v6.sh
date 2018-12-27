@@ -287,11 +287,8 @@ use_centos_pm2(){
     fi
     #PM2定时重启
     echo '#DaliyJob' >> /var/spool/cron/root
-	echo '* */6 * * * ssrr >> /dev/null/cron_log.txt' >> /var/spool/cron/root
-    echo '*/30 * * * * pm2 flush >> /dev/null/cron_log.txt' >> /var/spool/cron/root
-	echo '2 3 * * * ssrr >> /dev/null/cron_log.txt' >> /var/spool/cron/root
-    echo '0 3 * * * pm2 update >> /dev/null/cron_log.txt' >> /var/spool/cron/root
-	echo '20 3 * * * killall sftp-server >> /dev/null/cron_log.txt' >> /var/spool/cron/root
+    echo '1 */6 * * * pm2 flush >> /dev/null/cron_log.txt' >> /var/spool/cron/root
+	echo '2 3 * * 1 srs >> /dev/null/cron_log.txt' >> /var/spool/cron/root
     #清理缓存
     echo '5 3 * * * sync && echo 1 > /proc/sys/vm/drop_caches >> /dev/null/cron_log.txt' >> /var/spool/cron/root
     echo '10 3 * * * sync && echo 2 > /proc/sys/vm/drop_caches >> /dev/null/cron_log.txt' >> /var/spool/cron/root
@@ -340,7 +337,7 @@ use_debian_pm2(){
         ssr_names+=($(basename "$ssr_dir"))
     done
 
-        max_memory_limit=320
+	max_memory_limit=320
     if [ $all -le 256 ] ; then
         max_memory_limit=192
     elif [ $all -le 512 ] ; then
@@ -389,15 +386,13 @@ use_debian_pm2(){
         echo '0 1 * * * gost start >> /dev/null/cron_log.txt' >> /var/spool/cron/crontabs/root
     fi
     #PM2定时重启
-    echo '#DaliyJob' >> /var/spool/cron/crontabs/root
-	echo '* */6 * * * ssrr >> /dev/null/cron_log.txt' >> /var/spool/cron/root
-    echo '* */1 * * * pm2 flush >> /dev/null/cron_log.txt' >> /var/spool/cron/crontabs/root
-    echo '0 3 * * * pm2 update >> /dev/null/cron_log.txt' >> /var/spool/cron/crontabs/root
-	echo '20 3 * * * killall sftp-server >> /dev/null/cron_log.txt' >> /var/spool/cron/crontabs/root
+    echo '#DaliyJob' >> /var/spool/cron/root
+    echo '1 */6 * * * pm2 flush >> /dev/null/cron_log.txt' >> /var/spool/cron/root
+	echo '2 3 * * 1 srs >> /dev/null/cron_log.txt' >> /var/spool/cron/root
     #清理缓存
-    echo '5 3 * * * sync && echo 1 > /proc/sys/vm/drop_caches >> /dev/null/cron_log.txt' >> /var/spool/cron/crontabs/root
-    echo '10 3 * * * sync && echo 2 > /proc/sys/vm/drop_caches >> /dev/null/cron_log.txt' >> /var/spool/cron/crontabs/root
-    echo '15 3 * * * sync && echo 3 > /proc/sys/vm/drop_caches >> /dev/null/cron_log.txt' >> /var/spool/cron/crontabs/root
+    echo '5 3 * * * sync && echo 1 > /proc/sys/vm/drop_caches >> /dev/null/cron_log.txt' >> /var/spool/cron/root
+    echo '10 3 * * * sync && echo 2 > /proc/sys/vm/drop_caches >> /dev/null/cron_log.txt' >> /var/spool/cron/root
+    echo '15 3 * * * sync && echo 3 > /proc/sys/vm/drop_caches >> /dev/null/cron_log.txt' >> /var/spool/cron/root
     #cron重启
     service cron restart
     service cron reload
