@@ -865,7 +865,12 @@ install_node(){
 
     install_ssr_for_each
 	# 取消文件数量限制
-	sed -i '$a * hard nofile 512000\n* soft nofile 512000' /etc/security/limits.conf
+    if grep -Fq "hard nofile 512000" "/etc/security/limits.conf"
+    then
+        echo "已经update limits.conf"
+    else
+	    sed -i '$a * hard nofile 512000\n* soft nofile 512000' /etc/security/limits.conf
+    fi
     iptables -P INPUT ACCEPT
     iptables -F
     iptables -X
