@@ -19,13 +19,11 @@ echo && echo -e "###############################################################
 # 版本：V.2.3.5 2018-12-16                                         #
 ####################################################################
 # [1] PM2管理后端                                                  #
-# [2] Supervisor管理后端                                           #
-# [3] 修改ssr节点配置                                              #
-# [4] 安装ssr节点（肥羊）                                          #
-# [5] 后端更多选项                                                 #
-# [6] 一键安装加速                                                 #
-# [7] 一键服务器测速                                               #
-# [8] 更多功能                                                     #
+# [2] 安装ssr节点                                                  #
+# [3] 后端更多选项                                                 #
+# [4] 一键安装加速                                                 #
+# [5] 一键服务器测速                                               #
+# [6] 更多功能                                                     #
 ####################################################################
 # [a]卸载各类云盾 [b]查看回程路由 [c]简易测速 [d]检测BBR安装状态   #
 # [e]配置防火墙 [f]列出开放端口 [g]更换默认源                      #
@@ -40,18 +38,14 @@ case "$num" in
 	1)
 	pm2_list;;
 	2)
-	supervisor_list;;
-	3)
-	modify_node_info;;
-	4)
 	install_node;;
-	5)
+	3)
 	python_more;;
-	6)
+	4)
 	serverspeeder;;
-	7)
+	5)
     speedtest;;
-	8)
+	6)
 	system_more;;
 	a)
 	uninstall_ali_cloud_shield;;
@@ -69,7 +63,7 @@ case "$num" in
 	replacement_of_installation_source;;
 	x)
 	rm -rf /usr/bin/v6 && cp /root/v6.sh /usr/bin/v6 && chmod +x /usr/bin/v6
-	v3;;
+	v6;;
 	y)
 	update_the_shell;;
 	z)
@@ -165,10 +159,8 @@ install_pm2(){
         echo "检查到您未安装pm2,脚本将先进行安装"
         #安装Node.js
         if [[ ${release} = "centos" ]]; then
-	        yum -y update
             yum -y install xz
             yum -y install wget
-            wget -N https://github.com/Super-box/v3/raw/master/resolv.conf -P /etc && /usr/bin/chattr +i /etc/resolv.conf
         else
             apt -y install xz
             apt -y install wget
@@ -242,6 +234,13 @@ use_centos_pm2(){
         pm2 start /root/${ssr_name}/server.py --name $(echo ${ssr_name} | sed 's/shadowsocks-//') --max-memory-restart ${max_memory_limit}M  -o /dev/null/out-${ssr_name}.log -e /dev/null/error-${ssr_name}.log
     done
 
+    #更换DNS至8888/1001
+    if grep -Fq "8.8.8.8" "/etc/resolv.conf"
+    then
+        echo "已经update resolv.conf"
+    else
+	    /usr/bin/chattr -i /etc/resolv.conf && wget -N https://github.com/Super-box/v3/raw/master/resolv.conf -P /etc && /usr/bin/chattr +i /etc/resolv.conf
+    fi
 
     sleep 2s
     #创建快捷方式
@@ -303,13 +302,8 @@ use_centos_pm2(){
 	pm2 save
 	pm2 startup
 	#完成提示
-	clear;echo "########################################
+	echo "########################################
 # SS NODE 已安装完成                   #
-########################################
-# 启动SSR：pm2 start ssr               #
-# 停止SSR：pm2 stop ssr                #
-# 重启SSR：pm2 restart ssr             #
-# 或：srs                              #
 ########################################"
 }
 
@@ -348,6 +342,18 @@ use_debian_pm2(){
     do
         pm2 start /root/${ssr_name}/server.py --name $(echo ${ssr_name} | sed 's/shadowsocks-//') --max-memory-restart ${max_memory_limit}M  -o /dev/null/out-${ssr_name}.log -e /dev/null/error-${ssr_name}.log
     done
+
+
+    #更换DNS至8888/1001
+    if grep -Fq "8.8.8.8" "/etc/resolv.conf"
+    then
+        echo "已经update resolv.conf"
+    else
+	    /usr/bin/chattr -i /etc/resolv.conf && wget -N https://github.com/Super-box/v3/raw/master/resolv.conf -P /etc && /usr/bin/chattr +i /etc/resolv.conf
+    fi
+
+
+
     sleep 2s
     #创建快捷方式
     rm -rf "/usr/bin/srs"
@@ -403,13 +409,8 @@ use_debian_pm2(){
 	pm2 save
 	pm2 startup
 	#完成提示
-	clear;echo "########################################
+	echo "########################################
 # SS NODE 已安装完成                   #
-########################################
-# 启动SSR：pm2 start ssr               #
-# 停止SSR：pm2 stop ssr                #
-# 重启SSR：pm2 restart ssr             #
-# 或：srs                              #
 ########################################"
 }
 
@@ -447,221 +448,6 @@ remove_pm2(){
 		fi
 }
 
-#supervisor-[2]
-supervisor_list(){
-	#检查 Root账户
-	[ $(id -u) != "0" ] && { echo "Error: You must be root to run this script"; exit 1; }
-        #检查系统版本
-        check_sys
-
-	echo "选项：[1]安装supervisor [2]卸载supervisor [3]强制重启supervisor"
-	read super_option
-	if [ ${super_option} = '1' ]; then
-           install_supervisor_for_each
-        elif [ ${super_option} = '2' ]; then
-    	   remove_supervisor_for_each
-	elif [ ${super_option} = '3' ]; then
-    	   kill_supervisor
-	else
-           echo "选项不在范围,操作中止.";exit 0
-	fi
-}
-
-install_supervisor_for_each(){
-    #检查系统版本
-    check_sys
-	if [[ ${release} = "centos" ]]; then
-		install_centos_supervisor
-	else
-		echo "暂时只完美支持Centos,请更换PM2管理";exit 0
-	fi
-}
-
-remove_supervisor_for_each(){
-	#检查系统版本
-    check_sys
-	if [[ ${release} = "centos" ]]; then
-		remove_centos_supervisor
-	else
-		remove_debian_supervisor
-	fi
-}
-
-install_centos_supervisor(){
-	#判断/usr/bin/supervisord文件是否存在
-	if [ ! -f /usr/bin/supervisord ]; then
-		#判断/usr/bin/killall文件是否存在
-	    if [ ! -f /usr/bin/killall ]; then
-	        echo "检查到您未安装psmisc,脚本将先进行安装"
-	        yum -y update
-	        yum -y install psmisc
-	    fi
-	    echo "开始卸载supervisor"
-        yum -y remove supervisor
-        rm -rf "/etc/supervisord.conf"
-        rm -rf "/usr/bin/srs"
-        yum -y install supervisor
-        #启用supervisord
-        echo_supervisord_conf > /etc/supervisord.conf
-        sed -i '$a [program:ssr]\ncommand = python /root/shadowsocks/server.py\nuser = root\nautostart = true\nautorestart = true' /etc/supervisord.conf
-        supervisord
-        #iptables
-        iptables -F
-        iptables -X
-        iptables -I INPUT -p tcp -m tcp —dport 104 -j ACCEPT
-        iptables -I INPUT -p udp -m udp —dport 104 -j ACCEPT
-        iptables -I INPUT -p tcp -m tcp —dport 1024: -j ACCEPT
-        iptables -I INPUT -p udp -m udp —dport 1024: -j ACCEPT
-        iptables-save >/etc/sysconfig/iptables
-        echo 'iptables-restore /etc/sysconfig/iptables' » /etc/rc.local
-        echo "/usr/bin/supervisord -c /etc/supervisord.conf" » /etc/rc.local
-        #创建快捷重启命令
-        echo "#!/bin/bash" » /usr/bin/srs
-        echo "supervisorctl restart ssr" » /usr/bin/srs
-        chmod +x /usr/bin/srs
-        #最后配置
-        #/usr/bin/supervisord -c /etc/supervisord.conf
-        srs
-        #开机自启
-        curl https://raw.githubusercontent.com/Supervisor/initscripts/master/centos-systemd-etcs > supervisord.service
-        mv supervisord.service /etc/systemd/system
-        chmod 644 /etc/systemd/system/supervisord.service
-        systemctl daemon-reload
-        systemctl start supervisord.service
-        systemctl enable supervisord
-        systemctl is-enabled supervisord
-	else
-	    echo "已经安装supervisor";exit 0
-    fi
-}
-
-remove_debian_supervisor(){
-	#判断/usr/bin/supervisord文件是否存在
-	if [ ! -f /usr/bin/supervisord ]; then
-		echo "已经卸载supervisor";exit 0
-	else
-	    if [ ! -f /usr/bin/killall ]; then
-	        echo "检查到您未安装psmisc,脚本将先进行安装"
-	        apt-get install psmisc
-        else
-	        echo "现在开始卸载supervisor"
-            killall supervisord
-	        killall supervisord
-	        killall supervisord
-	        killall supervisord
-	        apt-get remove --purge supervisor -y
-            rm -rf "/etc/supervisord.conf"
-            rm -rf "/usr/bin/srs"
-        fi
-	fi
-}
-
-remove_centos_supervisor(){
-	#判断/usr/bin/supervisord文件是否存在
-	if [ ! -f /usr/bin/supervisord ]; then
-	    echo "已经卸载supervisor";exit 0
-	else
-	    if [ ! -f /usr/bin/killall ]; then
-	        echo "检查到您未安装psmisc,脚本将先进行安装"
-            yum -y update
-	        yum -y install psmisc
-        fi
-	    echo "现在开始卸载supervisor"
-        killall supervisord
-	    killall supervisord
-	    killall supervisord
-	    killall supervisord
-	    yum -y remove supervisor
-        rm -rf "/etc/supervisord.conf"
-        rm -rf "/usr/bin/srs"
-	fi
-}
-
-kill_supervisor(){
-    #检查系统版本
-    check_sys
-	#判断/usr/bin/killall文件是否存在
-	if [ ! -f /usr/bin/killall ]; then
-	    echo "检查到您未安装psmisc,脚本将先进行安装..."
-	    if [[ ${release} = "centos" ]]; then
-	        yum -y update
-	        yum -y install psmisc
-	    else
-	        apt-get -y update
-            apt-get -y install psmisc
-	    fi
-        killall supervisord
-	    killall supervisord
-	    killall supervisord
-	    killall supervisord
-	    supervisord
-	else
-	    killall supervisord
-	    killall supervisord
-	    killall supervisord
-	    killall supervisord
-	    supervisord
-	fi
-}
-
-
-#节点-[3]
-modify_node_info(){
-	#检测
-	if [ ! -f /root/shadowsocks/userapiconfig.py ]; then
-		echo "ssr服务端未安装,不能执行该选项.";exit
-	else
-		#清屏
-		clear
-		#输出当前节点配置
-		echo "当前节点配置如下:"
-		echo "------------------------------------"
-		sed -n '3p' /root/shadowsocks/userapiconfig.py
-		sed -n '17,18p' /root/shadowsocks/userapiconfig.py
-		echo "------------------------------------"
-		#获取新节点配置信息
-		read -e -p "新的前端地址是:" Userdomain
-		read -e -p "新的节点ID是:" UserNODE_ID
-		read -e -p "新的MuKey是:" Usermukey
-
-		#检查
-		if [ ! -f /root/shadowsocks/userapiconfig.py.bak ]; then
-			wget https://github.com/Super-box/v3/raw/master/userapiconfig.py
-		else
-			#还原
-			rm -rf /root/shadowsocks/userapiconfig.py
-			cp /root/shadowsocks/userapiconfig.py.bak /root/shadowsocks/userapiconfig.py
-		fi
-
-		#修改
-		Userdomain=${Userdomain:-"http://${server_ip}"}
-		sed -i "s#http://zhaoj.in#${Userdomain}#" /root/shadowsocks/userapiconfig.py
-		Usermukey=${Usermukey:-"mupass"}
-		sed -i "s#glzjin#${Usermukey}#" /root/shadowsocks/userapiconfig.py
-		UserNODE_ID=${UserNODE_ID:-"3"}
-		sed -i '2d' /root/shadowsocks/userapiconfig.py
-		sed -i "2a\NODE_ID = ${UserNODE_ID}" /root/shadowsocks/userapiconfig.py
-	fi
-}
-
-#安装后端-[4]
-Libtest(){
-	#自动选择下载节点
-	GIT='raw.githubusercontent.com'
-	LIB='download.libsodium.org'
-	GIT_PING=`ping -c 1 -w 1 $GIT|grep time=|awk '{print $7}'|sed "s/time=//"`
-	LIB_PING=`ping -c 1 -w 1 $LIB|grep time=|awk '{print $7}'|sed "s/time=//"`
-	echo "$GIT_PING $GIT" > ping.pl
-	echo "$LIB_PING $LIB" >> ping.pl
-	libAddr=`sort -V ping.pl|sed -n '1p'|awk '{print $2}'`
-	if [ "$libAddr" == "$GIT" ]; then
-		libAddr='https://github.com/Super-box/v3/raw/master/libsodium-1.0.16.tar.gz'
-	else
-		libAddr='https://download.libsodium.org/libsodium/releases/libsodium-1.0.16.tar.gz'
-	fi
-	rm -f ping.pl
-}
-
 Get_Dist_Version()
 {
     if [ -s /usr/bin/python3 ]; then
@@ -673,6 +459,10 @@ Get_Dist_Version()
 
 
 install_centos_ssr(){
+    if [ ! -f /usr/bin/git ]; then
+       yum -y install git
+    fi
+
     read -e -p "后端名字是:(默认: idou):" Username
 	[[ -z ${Username} ]] && Username="idou"
 
@@ -767,6 +557,11 @@ install_centos_ssr(){
 }
 
 install_ubuntu_ssr(){
+
+    if [ ! -f /usr/bin/git ]; then
+        apt -y install git
+    fi
+
     read -e -p "后端名字是:(默认: idou):" Username
 	[[ -z ${Username} ]] && Username="idou"
 
@@ -889,13 +684,11 @@ install_node(){
 
 #More-[5]
 python_more(){
-    echo "选项：[1]安装Gost服务器 [2]Git更新后端 [3]安装ocserv"
+    echo "选项：[1]安装Gost服务器  [3]安装ocserv"
 	read more_option
 	if [ ${more_option} = '1' ]; then
 		install_gost
 	elif [ ${more_option} = '2' ]; then
-		git_update
-	elif [ ${more_option} = '3' ]; then
 		install_ocserv
 	else
 		echo "选项不在范围,操作中止.";exit 0
@@ -911,15 +704,6 @@ install_gost(){
             bash gost.sh
 	    }
 
-git_update(){
-                if [ ! -f /root/shadowsocks/userapiconfig.py ]; then
-		        echo "Tan90°"
-                else
-	         	git clone -b manyuser https://github.com/Super-box/p3.git
-                        \cp -r -f /root/p3/* /root/shadowsocks
-			rm -rf /root/p3
-                fi
-        }
 install_ocserv(){
         check_sys
         echo "$release"
@@ -961,33 +745,6 @@ install_ocserv(){
 		fi
         }
 
-#一键安装加速-[6]
-serverspeeder(){
-	echo "选项：[1]KVM安装 [2]OVZ安装"
-	read serverspeeder_option
-	if [ ${serverspeeder_option} = '1' ]; then
-		#检查文件tcp.sh是否存在,若不存在,则下载该文件
-	    if [ ! -f /root/tcp.sh ]; then
-		wget -N --no-check-certificate "https://raw.githubusercontent.com/chiakge/Linux-NetSpeed/master/tcp.sh"
-		chmod +x tcp.sh
-	    fi
-	    #执行
-		./tcp.sh
-	elif [ ${serverspeeder_option} = '2' ]; then
-		#检查文件tcp.sh是否存在,若不存在,则下载该文件
-		check_sys
-		echo "$release"
-		if [ ${release} = 'centos' ]; then
-			wget -N --no-check-certificate "https://github.com/tcp-nanqinlang/lkl-rinetd/releases/download/1.1.0/tcp_nanqinlang-rinetd-centos.sh"
-            chmod +x tcp_nanqinlang-rinetd-centos.sh
-            ./tcp_nanqinlang-rinetd-centos.sh
-		else
-			wget -N --no-check-certificate "https://github.com/tcp-nanqinlang/lkl-rinetd/releases/download/1.1.0/tcp_nanqinlang-rinetd-debianorubuntu.sh"
-            chmod +x tcp_nanqinlang-rinetd-debianorubuntu.sh
-            ./tcp_nanqinlang-rinetd-debianorubuntu.sh
-		fi
-	fi
-}
 
 #一键全面测速-[7]
 speedtest(){
@@ -1106,6 +863,7 @@ ddns(){
 		#获取新配置信息
         read -e -p "新的DDNS地址是:" CFRECORD_NAME
         read -e -p "新的subDomain地址是:" NCRECORD_SUB_NAME
+		read -e -p "新的pass是:" NCRECORD_PASS
 
         rm -rf /root/ddns
         wget -N —no-check-certificate "https://raw.githubusercontent.com/whut-share/v6/master/nc-ddns.sh" -P /root/ddns
