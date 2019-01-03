@@ -191,7 +191,9 @@ install_pm2(){
         rm -rf /root/*.tar.xz
 
         # 替换掉默认的NOFILE限制
-        sed -i '/LimitNOFILE=infinity/d' /root/node-v9.11.2-linux-x64/lib/node_modules/pm2/lib/templates/init-scripts/systemd.tpl
+          # 替换掉默认的NOFILE限制
+        sed -i 's/LimitNOFILE=infinity/LimitNOFILE=512000/' /root/node-v9.11.2-linux-x64/lib/node_modules/pm2/lib/templates/init-scripts/systemd.tpl
+        sed -i 's/LimitNPROC=infinity/LimitNPROC=512000/' /root/node-v9.11.2-linux-x64/lib/node_modules/pm2/lib/templates/init-scripts/systemd.tpl
     else
         echo "已经安装pm2，请配置pm2"
     fi
