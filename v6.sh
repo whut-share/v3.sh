@@ -261,6 +261,7 @@ use_centos_pm2(){
         echo "已经update systemd.conf"
     else
 	    sed -i '$a DefaultLimitCORE=infinity\nDefaultLimitNOFILE=512000\nDefaultLimitNPROC=512000' /etc/systemd/system.conf
+		sed -i '$a DefaultLimitCORE=infinity\nDefaultLimitNOFILE=512000\nDefaultLimitNPROC=512000' /etc/systemd/user.conf
         systemctl daemon-reload
     fi
 
@@ -324,6 +325,9 @@ use_centos_pm2(){
     #创建开机自启动
 	pm2 save
 	pm2 startup
+	systemctl daemon-reload
+	systemctl restart pm2-root
+
 	#完成提示
 	echo "########################################
 # SS NODE 已安装完成                   #
