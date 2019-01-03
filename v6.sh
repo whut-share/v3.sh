@@ -258,7 +258,7 @@ use_centos_pm2(){
     then
         echo "已经update systemd.conf"
     else
-	    sed -i '$a DefaultLimitCORE=infinity\nDefaultLimitNOFILE=512000\nDefaultLimitNPROC=512000' /etc/security/limits.conf
+	    sed -i '$a DefaultLimitCORE=infinity\nDefaultLimitNOFILE=512000\nDefaultLimitNPROC=512000' /etc/systemd/system.conf
         systemctl daemon-reload
     fi
 
@@ -1218,7 +1218,7 @@ configure_firewall(){
 
 update_the_shell(){
 	rm -rf /root/v6.sh v6.sh.*
-	wget -N "https://raw.githubusercontent.com/whut-share/v6/master/v6.sh " /root/v6.sh
+	wget -N "https://raw.githubusercontent.com/whut-share/v6/master/v6.sh" /root/v6.sh
 
 	#将脚本作为命令放置在/usr/bin目录内,最后执行
 	rm -rf /usr/bin/v6;cp /root/v6.sh /usr/bin/v6;chmod +x /usr/bin/v6
