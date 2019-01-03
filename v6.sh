@@ -155,7 +155,7 @@ install_pm2(){
     check_sys
 
 	#判断/usr/bin/pm2文件是否存在
-	if [ ! -f /usr/bin/pm2 ]; then
+    if [ ! -f /usr/bin/pm2 ]; then
         echo "检查到您未安装pm2,脚本将先进行安装"
         #安装Node.js
         if [[ ${release} = "centos" ]]; then
@@ -189,9 +189,12 @@ install_pm2(){
     	    ln -s /root/node-v9.11.2-linux-x64/bin/pm2 /usr/bin/pm2
         fi
         rm -rf /root/*.tar.xz
-	else
-		echo "已经安装pm2，请配置pm2"
-	fi
+
+        # 替换掉默认的NOFILE限制
+        sed -i '/LimitNOFILE=infinity/d' /root/node-v9.11.2-linux-x64/lib/node_modules/pm2/lib/templates/init-scripts/systemd.tpl
+    else
+        echo "已经安装pm2，请配置pm2"
+    fi
 }
 
 use_centos_pm2(){
@@ -241,6 +244,24 @@ use_centos_pm2(){
     else
 	    /usr/bin/chattr -i /etc/resolv.conf && wget -N https://github.com/Super-box/v3/raw/master/resolv.conf -P /etc && /usr/bin/chattr +i /etc/resolv.conf
     fi
+
+    # 取消文件数量限制
+    if grep -Fq "hard nofile 512000" "/etc/security/limits.conf"
+    then
+        echo "已经update limits.conf"
+    else
+	    sed -i '$a * hard nofile 512000\n* soft nofile 512000' /etc/security/limits.conf
+    fi
+
+    # 取消systemd文件数量限制
+    if grep -Fq "DefaultLimitCORE=infinity" "/etc/systemd/system.conf"
+    then
+        echo "已经update systemd.conf"
+    else
+	    sed -i '$a DefaultLimitCORE=infinity\nDefaultLimitNOFILE=512000\nDefaultLimitNPROC=512000' /etc/security/limits.conf
+        systemctl daemon-reload
+    fi
+
 
     sleep 2s
     #创建快捷方式
