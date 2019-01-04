@@ -236,7 +236,7 @@ use_centos_pm2(){
 
     for ssr_name in "${ssr_names[@]}"
     do
-        pm2 start /root/${ssr_name}/server.py --name $(echo ${ssr_name} | sed 's/shadowsocks-//') --max-memory-restart ${max_memory_limit}M  -o /dev/null/out-${ssr_name}.log -e /dev/null/error-${ssr_name}.log
+        pm2 start /root/${ssr_name}/server.py --name $(echo ${ssr_name} | sed 's/shadowsocks-//') --max-memory-restart ${max_memory_limit}M  -o /dev/null -e /dev/null
     done
 
     #更换DNS至8888/1001
@@ -277,7 +277,7 @@ use_centos_pm2(){
 	echo "#!/bin/bash" >> /usr/bin/ssrr
 	for ssr_name in "${ssr_names[@]}"
 	do
-	    echo "pm2 start /root/${ssr_name}/server.py --name $(echo ${ssr_name} | sed 's/shadowsocks-//') --max-memory-restart ${max_memory_limit}M  -o /dev/null/out-${ssr_name}.log -e /dev/null/error-${ssr_name}.log" >> /usr/bin/ssrr
+	    echo "pm2 start /root/${ssr_name}/server.py --name $(echo ${ssr_name} | sed 's/shadowsocks-//') --max-memory-restart ${max_memory_limit}M  -o /dev/null -e /dev/null" >> /usr/bin/ssrr
     done
 	chmod +x /usr/bin/ssrr
 
@@ -290,7 +290,7 @@ use_centos_pm2(){
 	    echo "添加DDNS定时启动"
         sleep 2s
         echo '###DDNS' >> /var/spool/cron/root
-        echo '*/10 * * * * bash /root/ddns/nc-ddns.sh >> /dev/null/cron_log.txt' >> /var/spool/cron/root
+        echo '*/10 * * * * bash /root/ddns/nc-ddns.sh 2>&1 > /dev/null' >> /var/spool/cron/root
     fi
     if [ ! -f /root/Application/telegram-socks/server.js ] ; then
         echo "未检测到socks5"
@@ -298,7 +298,7 @@ use_centos_pm2(){
 	    echo "添加socks5定时启动"
         sleep 2s
         echo '###Socks5' >> /var/spool/cron/root
-        echo '* */1 * * * systemctl restart telegram >> /dev/null/cron_log.txt' >> /var/spool/cron/root
+        echo '* */1 * * * systemctl restart telegram 2>&1 > /dev/null' >> /var/spool/cron/root
     fi
     if [ ! -f /usr/local/gost/gostproxy ] ; then
         echo "未检测到gost"
@@ -306,16 +306,16 @@ use_centos_pm2(){
 	    echo "添加gost定时启动"
         sleep 2s
         echo '###Gost' >> /var/spool/cron/root
-        echo '0 3 * * * gost start >> /dev/null/cron_log.txt' >> /var/spool/cron/root
+        echo '0 3 * * * gost start 2>&1 > /dev/null' > /var/spool/cron/root
     fi
     #PM2定时重启
     echo '#DaliyJob' >> /var/spool/cron/root
-    echo '1 */6 * * * pm2 flush >> /dev/null/cron_log.txt' >> /var/spool/cron/root
-	echo '2 3 * * 1 srs >> /dev/null/cron_log.txt' >> /var/spool/cron/root
+    echo '1 */6 * * * pm2 flush 2>&1 > /dev/null' >> /var/spool/cron/root
+    echo '2 3 * * 1 srs 2>&1 > /dev/null' >> /var/spool/cron/root
     #清理缓存
-    echo '5 3 * * * sync && echo 1 > /proc/sys/vm/drop_caches >> /dev/null/cron_log.txt' >> /var/spool/cron/root
-    echo '10 3 * * * sync && echo 2 > /proc/sys/vm/drop_caches >> /dev/null/cron_log.txt' >> /var/spool/cron/root
-    echo '15 3 * * * sync && echo 3 > /proc/sys/vm/drop_caches >> /dev/null/cron_log.txt' >> /var/spool/cron/root
+    echo '5 3 * * * sync && echo 1 > /proc/sys/vm/drop_caches' >> /var/spool/cron/root
+    echo '10 3 * * * sync && echo 2 > /proc/sys/vm/drop_caches' >> /var/spool/cron/root
+    echo '15 3 * * * sync && echo 3 > /proc/sys/vm/drop_caches' >> /var/spool/cron/root
 	#重启cron并备份
     /sbin/service crond restart
     cp /var/spool/cron/root /var/spool/cron/v3root.bak
@@ -367,7 +367,7 @@ use_debian_pm2(){
 
     for ssr_name in "${ssr_names[@]}"
     do
-        pm2 start /root/${ssr_name}/server.py --name $(echo ${ssr_name} | sed 's/shadowsocks-//') --max-memory-restart ${max_memory_limit}M  -o /dev/null/out-${ssr_name}.log -e /dev/null/error-${ssr_name}.log
+        pm2 start /root/${ssr_name}/server.py --name $(echo ${ssr_name} | sed 's/shadowsocks-//') --max-memory-restart ${max_memory_limit}M  -o /dev/null -e /dev/null
     done
 
 
@@ -395,7 +395,7 @@ use_debian_pm2(){
 	echo "#!/bin/bash" >> /usr/bin/ssrr
 	for ssr_name in "${ssr_names[@]}"
 	do
-	    echo "pm2 start /root/${ssr_name}/server.py --name $(echo ${ssr_name} | sed 's/shadowsocks-//') --max-memory-restart ${max_memory_limit}M  -o /dev/null/out-${ssr_name}.log -e /dev/null/error-${ssr_name}.log" >> /usr/bin/ssrr
+	    echo "pm2 start /root/${ssr_name}/server.py --name $(echo ${ssr_name} | sed 's/shadowsocks-//') --max-memory-restart ${max_memory_limit}M  -o /dev/null -e /dev/null" >> /usr/bin/ssrr
     done
 	chmod +x /usr/bin/ssrr
     #创建pm2日志清理
@@ -406,7 +406,7 @@ use_debian_pm2(){
 	    echo "添加DDNS定时启动"
         sleep 2s
         echo '###DDNS' >> /var/spool/cron/crontabs/root
-        echo '*/10 * * * * bash /root/ddns/nc-ddns.sh >> /dev/null/cron_log.txt' >> /var/spool/cron/crontabs/root
+        echo '*/10 * * * * bash /root/ddns/nc-ddns.sh 2>&1 > /dev/null' >> /var/spool/cron/crontabs/root
     fi
 
     if [ ! -f /usr/local/gost/gostproxy ] ; then
@@ -416,16 +416,16 @@ use_debian_pm2(){
 	    echo "添加gost定时启动"
         sleep 2s
         echo '###Gost' >> /var/spool/cron/crontabs/root
-        echo '0 1 * * * gost start >> /dev/null/cron_log.txt' >> /var/spool/cron/crontabs/root
+        echo '0 1 * * * gost start 2>&1 > /dev/null' >> /var/spool/cron/crontabs/root
     fi
     #PM2定时重启
     echo '#DaliyJob' >> /var/spool/cron/root
-    echo '1 */6 * * * pm2 flush >> /dev/null/cron_log.txt' >> /var/spool/cron/root
-	echo '2 3 * * 1 srs >> /dev/null/cron_log.txt' >> /var/spool/cron/root
+    echo '1 */6 * * * pm2 flush 2>&1 > /dev/null' >> /var/spool/cron/root
+    echo '2 3 * * 1 srs > /dev/null' >> /var/spool/cron/root
     #清理缓存
-    echo '5 3 * * * sync && echo 1 > /proc/sys/vm/drop_caches >> /dev/null/cron_log.txt' >> /var/spool/cron/root
-    echo '10 3 * * * sync && echo 2 > /proc/sys/vm/drop_caches >> /dev/null/cron_log.txt' >> /var/spool/cron/root
-    echo '15 3 * * * sync && echo 3 > /proc/sys/vm/drop_caches >> /dev/null/cron_log.txt' >> /var/spool/cron/root
+    echo '5 3 * * * sync && echo 1 > /proc/sys/vm/drop_caches' >> /var/spool/cron/root
+    echo '10 3 * * * sync && echo 2 > /proc/sys/vm/drop_caches' >> /var/spool/cron/root
+    echo '15 3 * * * sync && echo 3 > /proc/sys/vm/drop_caches' >> /var/spool/cron/root
     #cron重启
     service cron restart
     service cron reload
