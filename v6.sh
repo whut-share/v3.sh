@@ -248,11 +248,11 @@ use_centos_pm2(){
     fi
 
     # 取消文件数量限制
-    if grep -Fq "hard nofile 512000" "/etc/security/limits.conf"
+   if grep -Fq "hard nofile 512000" "/etc/security/limits.conf"
     then
         echo "已经update limits.conf"
     else
-	    sed -i '$a * hard nofile 512000\n* soft nofile 512000' /etc/security/limits.conf
+	    sed -i '$a * hard nofile 512000\n* soft nofile 512000\nroot hard nofile 512000\nroot soft nofile 512000' /etc/security/limits.conf
     fi
 
     # 取消systemd文件数量限制
@@ -691,7 +691,7 @@ install_node(){
     then
         echo "已经update limits.conf"
     else
-	    sed -i '$a * hard nofile 512000\n* soft nofile 512000' /etc/security/limits.conf
+	    sed -i '$a * hard nofile 512000\n* soft nofile 512000\nroot hard nofile 512000\nroot soft nofile 512000' /etc/security/limits.conf
     fi
     iptables -P INPUT ACCEPT
     iptables -F
