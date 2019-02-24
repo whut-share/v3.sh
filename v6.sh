@@ -501,17 +501,26 @@ install_centos_ssr(){
 	read -e -p "数据库用户:" UserDbUser
 	read -e -p "数据库密码:" UserDbPass
 
+	read -e -p "NF启用DNS(默认:0): " EnableNFDns
+	[[ -z ${EnableNFDns} ]] && EnableNFDns="0"
+	if [ ${EnableNFDns} = '1' ]; then
+		read -e -p "NF Dns地址: " NFDnsProxy
+		sed -i  "15s/^.*$/USE_NETFLIX_DNS = ${EnableNFDns}/"  /root/shadowsocks-${Username}/userapiconfig.py
+		sed -i  "16s/^.*$/USE_NETFLIX_DNS = '${NFDnsProxy}'/"  /root/shadowsocks-${Username}/userapiconfig.py
+	fi
+
     sed -i "2s#1#${UserNodeId}#" /root/shadowsocks-${Username}/userapiconfig.py
-    sed -i "27s#127.0.0.1#${UserDbHost}#" /root/shadowsocks-${Username}/userapiconfig.py
-    sed -i "29s#ss#${UserDbUser}#" /root/shadowsocks-${Username}/userapiconfig.py
-    sed -i "30s#ss#${UserDbPass}#" /root/shadowsocks-${Username}/userapiconfig.py
-    sed -i "31s#shadowsocks#${UserDbName}#" /root/shadowsocks-${Username}/userapiconfig.py
+    sed -i "31s#127.0.0.1#${UserDbHost}#" /root/shadowsocks-${Username}/userapiconfig.py
+    sed -i "33s#ss#${UserDbUser}#" /root/shadowsocks-${Username}/userapiconfig.py
+    sed -i "34s#ss#${UserDbPass}#" /root/shadowsocks-${Username}/userapiconfig.py
+    sed -i "35s#shadowsocks#${UserDbName}#" /root/shadowsocks-${Username}/userapiconfig.py
 
 	#更换DNS至8888/1001
     if grep -Fq "8.8.8.8" "/etc/resolv.conf"
     then
         echo "已经update resolv.conf"
     else
+		cp /etc/resolv.conf /etc/resolv.conf.bak
 	    /usr/bin/chattr -i /etc/resolv.conf && wget -N https://github.com/Super-box/v3/raw/master/resolv.conf -P /etc && /usr/bin/chattr +i /etc/resolv.conf
     fi
 
@@ -602,11 +611,32 @@ install_ubuntu_ssr(){
 		touch /root/.update
 	fi
 
+	read -e -p "节点ID是:" UserNodeId
+	read -e -p "数据库地址是:" UserDbHost
+	read -e -p "数据库名称:" UserDbName
+	read -e -p "数据库用户:" UserDbUser
+	read -e -p "数据库密码:" UserDbPass
+
+	read -e -p "NF启用DNS(默认:0): " EnableNFDns
+	[[ -z ${EnableNFDns} ]] && EnableNFDns="0"
+	if [ ${EnableNFDns} = '1' ]; then
+		read -e -p "NF Dns地址: " NFDnsProxy
+		sed -i  "15s/^.*$/USE_NETFLIX_DNS = ${EnableNFDns}/"  /root/shadowsocks-${Username}/userapiconfig.py
+		sed -i  "16s/^.*$/USE_NETFLIX_DNS = '${NFDnsProxy}'/"  /root/shadowsocks-${Username}/userapiconfig.py
+	fi
+
+    sed -i "2s#1#${UserNodeId}#" /root/shadowsocks-${Username}/userapiconfig.py
+    sed -i "31s#127.0.0.1#${UserDbHost}#" /root/shadowsocks-${Username}/userapiconfig.py
+    sed -i "33s#ss#${UserDbUser}#" /root/shadowsocks-${Username}/userapiconfig.py
+    sed -i "34s#ss#${UserDbPass}#" /root/shadowsocks-${Username}/userapiconfig.py
+    sed -i "35s#shadowsocks#${UserDbName}#" /root/shadowsocks-${Username}/userapiconfig.py
+
 	#更换DNS至8888/1001
     if grep -Fq "8.8.8.8" "/etc/resolv.conf"
     then
         echo "已经update resolv.conf"
     else
+		cp /etc/resolv.conf /etc/resolv.conf.bak
 	    /usr/bin/chattr -i /etc/resolv.conf && wget -N https://github.com/Super-box/v3/raw/master/resolv.conf -P /etc && /usr/bin/chattr +i /etc/resolv.conf
     fi
 
