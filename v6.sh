@@ -505,8 +505,11 @@ install_centos_ssr(){
 	[[ -z ${EnableNFDns} ]] && EnableNFDns="0"
 	if [ ${EnableNFDns} = '1' ]; then
 		read -e -p "NF Dns地址: " NFDnsProxy
-		sed -i  "15s/^.*$/USE_NETFLIX_DNS = ${EnableNFDns}/"  /root/shadowsocks-${Username}/userapiconfig.py
-		sed -i  "16s/^.*$/USE_NETFLIX_DNS = '${NFDnsProxy}'/"  /root/shadowsocks-${Username}/userapiconfig.py
+		net_line=`grep -n 'netflix dns' /root/shadowsocks-speed/userapiconfig.py | cut -d: -f 1`
+		let nf_enable_line=net_line+1
+		let nf_dns_line=net_line+2
+		sed -i  "${nf_enable_line}s/^.*$/USE_NETFLIX_DNS = ${EnableNFDns}/"  /root/shadowsocks-${Username}/userapiconfig.py
+		sed -i  "${nf_dns_line}s/^.*$/NETFLIX_DNS = '${NFDnsProxy}'/"  /root/shadowsocks-${Username}/userapiconfig.py
 	fi
 
     sed -i "2s#1#${UserNodeId}#" /root/shadowsocks-${Username}/userapiconfig.py
@@ -621,8 +624,11 @@ install_ubuntu_ssr(){
 	[[ -z ${EnableNFDns} ]] && EnableNFDns="0"
 	if [ ${EnableNFDns} = '1' ]; then
 		read -e -p "NF Dns地址: " NFDnsProxy
-		sed -i  "15s/^.*$/USE_NETFLIX_DNS = ${EnableNFDns}/"  /root/shadowsocks-${Username}/userapiconfig.py
-		sed -i  "16s/^.*$/USE_NETFLIX_DNS = '${NFDnsProxy}'/"  /root/shadowsocks-${Username}/userapiconfig.py
+		net_line=`grep -n 'netflix dns' /root/shadowsocks-speed/userapiconfig.py | cut -d: -f 1`
+		let nf_enable_line=net_line+1
+		let nf_dns_line=net_line+2
+		sed -i  "${nf_enable_line}s/^.*$/USE_NETFLIX_DNS = ${EnableNFDns}/"  /root/shadowsocks-${Username}/userapiconfig.py
+		sed -i  "${nf_dns_line}s/^.*$/NETFLIX_DNS = '${NFDnsProxy}'/"  /root/shadowsocks-${Username}/userapiconfig.py
 	fi
 
     sed -i "2s#1#${UserNodeId}#" /root/shadowsocks-${Username}/userapiconfig.py
