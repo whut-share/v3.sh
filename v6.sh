@@ -244,7 +244,8 @@ use_centos_pm2(){
     then
         echo "已经update resolv.conf"
     else
-	    /usr/bin/chattr -i /etc/resolv.conf && wget -N https://github.com/Super-box/v3/raw/master/resolv.conf -P /etc && /usr/bin/chattr +i /etc/resolv.conf
+        cp /etc/resolv.conf /etc/resolv.conf.bak
+        /usr/bin/chattr -i /etc/resolv.conf && wget -N https://github.com/Super-box/v3/raw/master/resolv.conf -P /etc && /usr/bin/chattr +i /etc/resolv.conf
     fi
 
     # 取消文件数量限制
@@ -376,7 +377,8 @@ use_debian_pm2(){
     then
         echo "已经update resolv.conf"
     else
-	    /usr/bin/chattr -i /etc/resolv.conf && wget -N https://github.com/Super-box/v3/raw/master/resolv.conf -P /etc && /usr/bin/chattr +i /etc/resolv.conf
+        cp /etc/resolv.conf /etc/resolv.conf.bak
+        /usr/bin/chattr -i /etc/resolv.conf && wget -N https://github.com/Super-box/v3/raw/master/resolv.conf -P /etc && /usr/bin/chattr +i /etc/resolv.conf
     fi
 
 
