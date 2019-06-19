@@ -290,13 +290,13 @@ use_centos_pm2(){
         rm -rf "/var/spool/cron/root"
     fi
 
-    if [ ! -f /root/ddns/nc-ddns.sh ] ; then
-        echo "未检测到nc-ddns.sh"
+    if [ ! -f /root/ddns/cf-ddns.sh ] ; then
+        echo "未检测到cf-ddns.sh"
     else
 	    echo "添加DDNS定时启动"
         sleep 2s
         echo '###DDNS' >> /var/spool/cron/root
-        echo '*/10 * * * * bash /root/ddns/nc-ddns.sh 2>&1 > /dev/null' >> /var/spool/cron/root
+        echo '*/10 * * * * bash /root/ddns/cf-ddns.sh 2>&1 > /dev/null' >> /var/spool/cron/root
     fi
     if [ ! -f /root/Application/telegram-socks/server.js ] ; then
         echo "未检测到socks5"
@@ -411,13 +411,13 @@ use_debian_pm2(){
         rm -rf "/var/spool/cron/crontabs/root"
     fi
 
-    if [ ! -f /root/ddns/nc-ddns.sh ] ; then
-            echo "未检测到nc-ddns.sh"
+    if [ ! -f /root/ddns/cf-ddns.sh ] ; then
+            echo "未检测到cf-ddns.sh"
     else
 	    echo "添加DDNS定时启动"
         sleep 2s
         echo '###DDNS' >> /var/spool/cron/crontabs/root
-        echo '*/10 * * * * bash /root/ddns/nc-ddns.sh 2>&1 > /dev/null' >> /var/spool/cron/crontabs/root
+        echo '*/10 * * * * bash /root/ddns/cf-ddns.sh 2>&1 > /dev/null' >> /var/spool/cron/crontabs/root
     fi
 
     if [ ! -f /usr/local/gost/gostproxy ] ; then
@@ -901,69 +901,62 @@ ddns(){
     echo "选项：[1]安装 [2]配置 [3]运行"
 	read ddns
 	if [ ${ddns} = '1' ]; then
-	    if [ ! -f /root/ddns/nc-ddns.sh ]; then
+	    if [ ! -f /root/ddns/cf-ddns.sh ]; then
 	    	echo "DDNS未配置，开始下载";
-            wget -N —no-check-certificate "https://raw.githubusercontent.com/whut-share/v6/master/nc-ddns.sh" -P /root/ddns
-            chmod +x /root/ddns/nc-ddns.sh
+            wget -N —no-check-certificate "https://raw.githubusercontent.com/whut-share/v6/master/cf-ddns.sh" -P /root/ddns
+            chmod +x /root/ddns/cf-ddns.sh
 	    fi
 	    #清屏
 		clear
-		#获取新配置信息
-		read -e -p "新的Domain地址是:" NCRECORD_NAME
-		#获取新配置信息
-		read -e -p "新的subDomain地址是:" NCRECORD_SUB_NAME
 
-		read -e -p "新的pass是:" NCRECORD_PASS
-		#修改
-        NCRECORD_NAME=${NCRECORD_NAME}
-        NCRECORD_SUB_NAME=${NCRECORD_SUB_NAME}
-        NCRECORD_PASS=${NCRECORD_PASS}
-        sed -i "3s#cat.cc#${NCRECORD_NAME}#" /root/ddns/nc-ddns.sh
-        sed -i "4s#sub.cat.cc#${NCRECORD_SUB_NAME}#" /root/ddns/nc-ddns.sh
-        sed -i "5s#ncdomainpasswd#${NCRECORD_PASS}#" /root/ddns/nc-ddns.sh
+		read -e -p "cf email: " CfEmail
+		read -e -p "cf domain: " CfDomain
+		read -e -p "cf subdomain: " CfSubDomain
+
+		cf_emn_line=`grep -n 'cf email' /root/ddns/cf-ddns.sh | cut -d: -f 1`
+		let cf_email_line=cf_emn_line+1
+		sed -i  "${cf_email_line}s/^.*$/auth_email='${CfEmail}'/"  /root/ddns/cf-ddns.sh
+
+		cf_dmn_line=`grep -n 'cf domain' /root/ddns/cf-ddns.sh | cut -d: -f 1`
+		let cf_domain_line=cf_dmn_line+1
+		let cf_subdomain_line=cf_dmn_line+2
+		sed -i  "${cf_domain_line}s/^.*$/zone_name='${CfDomain}'/"  /root/ddns/cf-ddns.sh
+		sed -i  "${cf_subdomain_line}s/^.*$/record_name='${CfSubDomain}'/"  /root/ddns/cf-ddns.sh
 
 		#运行
-		bash /root/ddns/nc-ddns.sh
+		bash /root/ddns/cf-ddns.sh
 
     elif [ ${ddns} = '2' ]; then
 		#清屏
 		clear
 		#输出当前配置
+		cf_emn_line=`grep -n 'cf email' /root/ddns/cf-ddns.sh | cut -d: -f 1`
+		let cf_email_line=cf_emn_line+1
+
+		cf_dmn_line=`grep -n 'cf domain' /root/ddns/cf-ddns.sh | cut -d: -f 1`
+		let cf_domain_line=cf_dmn_line+1
+		let cf_subdomain_line=cf_dmn_line+2
+
 		echo "当前DDNS配置如下:"
 		echo "------------------------------------"
-		sed -n '3p' /root/ddns/nc-ddns.sh
-		sed -n '4p' /root/ddns/nc-ddns.sh
-		sed -n '5p' /root/ddns/nc-ddns.sh
+		sed -n '${cf_email_line}p' /root/ddns/cf-ddns.sh
+		sed -n '${cf_domain_line}p' /root/ddns/cf-ddns.sh
+		sed -n '${cf_subdomain_line}p' /root/ddns/cf-ddns.sh
 		echo "------------------------------------"
 		#获取新配置信息
-        read -e -p "新的DDNS地址是:" CFRECORD_NAME
-        read -e -p "新的subDomain地址是:" NCRECORD_SUB_NAME
-		read -e -p "新的pass是:" NCRECORD_PASS
+        read -e -p "new cf email: " CfEmail
+		read -e -p "new cf domain: " CfDomain
+		read -e -p "new cf subdomain: " CfSubDomain
 
-        rm -rf /root/ddns
-        wget -N —no-check-certificate "https://raw.githubusercontent.com/whut-share/v6/master/nc-ddns.sh" -P /root/ddns
 		#修改
-        NCRECORD_NAME=${NCRECORD_NAME}
-        NCRECORD_SUB_NAME=${NCRECORD_SUB_NAME}
-        NCRECORD_PASS=${NCRECORD_PASS}
-        sed -i "3s#cat.cc#${NCRECORD_NAME}#" /root/ddns/nc-ddns.sh
-        sed -i "4s#sub.cat.cc#${NCRECORD_SUB_NAME}#" /root/ddns/nc-ddns.sh
-        sed -i "5s#ncdomainpasswd#${NCRECORD_PASS}#" /root/ddns/nc-ddns.sh
+        sed -i  "${cf_email_line}s/^.*$/auth_email = ${CfEmail}/"  /root/ddns/cf-ddns.sh
+		sed -i  "${cf_domain_line}s/^.*$/zone_name = '${CfDomain}'/"  /root/ddns/cf-ddns.sh
+		sed -i  "${cf_subdomain_line}s/^.*$/record_name = '${CfSubDomain}'/"  /root/ddns/cf-ddns.sh
 
-        bash /root/ddns/nc-ddns.sh
+        bash /root/ddns/cf-ddns.sh
     elif [ ${ddns} = '3' ]; then
-		if [ ! -f /root/ddns/nc-ddns.sh ]; then
- 		    echo "检查到您未安装ddns"
-		else
-	        echo "当前DDNS配置如下:"
-		    echo "------------------------------------"
-            sed -n '3p' /root/ddns/nc-ddns.sh
-		    sed -n '4p' /root/ddns/nc-ddns.sh
-		    sed -n '5p' /root/ddns/nc-ddns.sh
-		    echo "------------------------------------"
-		fi
-		    #运行
-		    bash /root/ddns/nc-ddns.sh
+		#运行
+		bash /root/ddns/cf-ddns.sh
 	else
 		echo "选项不在范围.";exit 0
 	fi
