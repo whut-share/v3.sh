@@ -59,7 +59,7 @@ if [ -z $record_identifier ]; then
         echo -e "$message"
         exit 1 
     else
-        message="SUCCESS: create DNS '$record_type' record '$record_name'."
+        message="SUCCESS: create DNS $record_type record $record_name => $ip."
         echo "$ip" > $ip_file
         log "$message"
         echo "$message"
