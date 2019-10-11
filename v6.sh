@@ -162,7 +162,7 @@ install_pm2(){
             yum -y install xz
             yum -y install wget
         else
-            apt -y install xz
+            apt -y install xz-utils
             apt -y install wget
         fi
 	    #编译Node.js
