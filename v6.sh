@@ -574,8 +574,8 @@ install_centos_ssr(){
 		echo -e "libsodium 已安装"
 	else
 		echo -e "libsodium 未安装，开始安装..."
-        wget https://raw.githubusercontent.com/mmmwhy/ss-panel-and-ss-py-mu/master/libsodium-1.0.13.tar.gz
-	    tar xf libsodium-1.0.13.tar.gz && cd libsodium-1.0.13
+        wget https://raw.githubusercontent.com/whut-share/v6/master/libsodium-1.0.18.tar.gz
+	    tar xf libsodium-1.0.18.tar.gz && cd libsodium-1.0.18
 	    ./configure && make -j2 && make install
 	    echo /usr/local/lib > /etc/ld.so.conf.d/usr_local_lib.conf
         ldconfig
@@ -663,8 +663,8 @@ install_ubuntu_ssr(){
 		echo -e "libsodium 已安装"
 	else
 		echo -e "libsodium 未安装，开始安装..."
-        wget https://raw.githubusercontent.com/mmmwhy/ss-panel-and-ss-py-mu/master/libsodium-1.0.13.tar.gz
-	    tar xf libsodium-1.0.13.tar.gz && cd libsodium-1.0.13
+        wget https://raw.githubusercontent.com/whut-share/v6/master/libsodium-1.0.18.tar.gz
+	    tar xf libsodium-1.0.18.tar.gz && cd libsodium-1.0.18
 	    ./configure && make -j2 && make install
 	    echo /usr/local/lib > /etc/ld.so.conf.d/usr_local_lib.conf
         ldconfig
