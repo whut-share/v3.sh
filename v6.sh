@@ -11,6 +11,7 @@ Info="${Green_font_prefix}[信息]${Font_color_suffix}"
 Error="${Red_font_prefix}[错误]${Font_color_suffix}"
 Tip="${Green_font_prefix}[注意]${Font_color_suffix}"
 Libsodiumr_file="/usr/local/lib/libsodium.so"
+Gost_script="/root/gost/gost.sh"
 
 #开始菜单
 start_menu(){
@@ -239,6 +240,11 @@ use_centos_pm2(){
         pm2 start /root/${ssr_name}/server.py --name $(echo ${ssr_name} | sed 's/shadowsocks-//') --max-memory-restart ${max_memory_limit}M  -o /dev/null -e /dev/null
     done
 
+	#加入gost支持
+    if [[ -e ${Gost_script} ]]; then
+		source ${Gost_script}
+	fi
+
     #更换DNS至8888/1001
     if grep -Fq "8.8.8.8" "/etc/resolv.conf"
     then
@@ -375,6 +381,11 @@ use_debian_pm2(){
     do
         pm2 start /root/${ssr_name}/server.py --name $(echo ${ssr_name} | sed 's/shadowsocks-//') --max-memory-restart ${max_memory_limit}M  -o /dev/null -e /dev/null
     done
+
+	#加入gost支持
+    if [[ -e ${Gost_script} ]]; then
+		source ${Gost_script}
+	fi
 
     #更换DNS至8888/1001
     if grep -Fq "8.8.8.8" "/etc/resolv.conf"
