@@ -323,7 +323,7 @@ use_centos_pm2(){
     #PM2定时重启
     echo '#DaliyJob' >> /var/spool/cron/root
     echo '1 */6 * * * pm2 flush 2>&1 > /dev/null' >> /var/spool/cron/root
-    echo '2 3 * * 1 srs 2>&1 > /dev/null' >> /var/spool/cron/root
+    echo '2 3 */2 * * srs 2>&1 > /dev/null' >> /var/spool/cron/root
     #清理缓存
     echo '5 3 * * * sync && echo 1 > /proc/sys/vm/drop_caches' >> /var/spool/cron/root
     echo '10 3 * * * sync && echo 2 > /proc/sys/vm/drop_caches' >> /var/spool/cron/root
@@ -443,7 +443,7 @@ use_debian_pm2(){
     #PM2定时重启
     echo '#DaliyJob' >> /var/spool/cron/crontabs/root
     echo '1 */6 * * * pm2 flush 2>&1 > /dev/null' >> /var/spool/cron/crontabs/root
-    echo '2 3 * * 1 srs > /dev/null' >> /var/spool/cron/crontabs/root
+    echo '2 3 */2 * * srs > /dev/null' >> /var/spool/cron/crontabs/root
     #清理缓存
     echo '5 3 * * * sync && echo 1 > /proc/sys/vm/drop_caches' >> /var/spool/cron/crontabs/root
     echo '10 3 * * * sync && echo 2 > /proc/sys/vm/drop_caches' >> /var/spool/cron/crontabs/root
