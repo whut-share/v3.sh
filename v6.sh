@@ -752,9 +752,9 @@ install_node(){
     else
 	    sed -i '$a * hard nofile 512000\n* soft nofile 512000\nroot hard nofile 512000\nroot soft nofile 512000' /etc/security/limits.conf
     fi
-    iptables -P INPUT ACCEPT
-    iptables -F
-    iptables -X
+    #iptables -P INPUT ACCEPT
+    #iptables -F
+    #iptables -X
 
 
 #########################################################################################"
