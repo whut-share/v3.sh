@@ -235,14 +235,23 @@ use_centos_pm2(){
         max_memory_limit=320
     fi
 
+    rm -rf "/usr/bin/srs"
+    echo "#!/bin/bash" >> /usr/bin/srs
     for ssr_name in "${ssr_names[@]}"
     do
         pm2 start /root/${ssr_name}/server.py --name $(echo ${ssr_name} | sed 's/shadowsocks-//') --max-memory-restart ${max_memory_limit}M  -o /dev/null -e /dev/null
+		echo "pm2 restart $(echo ${ssr_name} | sed 's/shadowsocks-//')" >> /usr/bin/srs
     done
+	chmod +x /usr/bin/srs
 
+
+	rm -rf "/usr/bin/grs"
 	#加入gost支持
     if [[ -e ${Gost_script} ]]; then
 		source ${Gost_script}
+		echo "#!/bin/bash" >> /usr/bin/grs
+		echo "pm2 list|grep relay |awk '{print $4}'|xargs pm2 restart" >> /usr/bin/grs
+		chmod +x /usr/bin/grs
 	fi
 
     #更换DNS至8888/1001
@@ -271,14 +280,6 @@ use_centos_pm2(){
 		sed -i '$a DefaultLimitCORE=infinity\nDefaultLimitNOFILE=512000\nDefaultLimitNPROC=512000' /etc/systemd/user.conf
         systemctl daemon-reload
     fi
-
-
-    sleep 2s
-    #创建快捷方式
-    rm -rf "/usr/bin/srs"
-    echo "#!/bin/bash" >> /usr/bin/srs
-	echo "pm2 restart all" >> /usr/bin/srs
-	chmod +x /usr/bin/srs
 
 	rm -rf "/usr/bin/ssrr"
 	echo "#!/bin/bash" >> /usr/bin/ssrr
@@ -377,14 +378,23 @@ use_debian_pm2(){
         max_memory_limit=300
     fi
 
+	rm -rf "/usr/bin/srs"
+    echo "#!/bin/bash" >> /usr/bin/srs
     for ssr_name in "${ssr_names[@]}"
     do
         pm2 start /root/${ssr_name}/server.py --name $(echo ${ssr_name} | sed 's/shadowsocks-//') --max-memory-restart ${max_memory_limit}M  -o /dev/null -e /dev/null
+		echo "pm2 restart $(echo ${ssr_name} | sed 's/shadowsocks-//')" >> /usr/bin/srs
     done
+	chmod +x /usr/bin/srs
 
+
+	rm -rf "/usr/bin/grs"
 	#加入gost支持
     if [[ -e ${Gost_script} ]]; then
 		source ${Gost_script}
+		echo "#!/bin/bash" >> /usr/bin/grs
+		echo "pm2 list|grep relay |awk '{print $4}'|xargs pm2 restart" >> /usr/bin/grs
+		chmod +x /usr/bin/grs
 	fi
 
     #更换DNS至8888/1001
@@ -395,16 +405,6 @@ use_debian_pm2(){
         cp /etc/resolv.conf /etc/resolv.conf.bak
         /usr/bin/chattr -i /etc/resolv.conf && wget -N https://github.com/Super-box/v3/raw/master/resolv.conf -P /etc && /usr/bin/chattr +i /etc/resolv.conf
     fi
-
-    sleep 2s
-    #创建快捷方式
-    rm -rf "/usr/bin/srs"
-    echo "#!/bin/bash" >> /usr/bin/srs
-    for ssr_name in "${ssr_names[@]}"
-    do
-	    echo "pm2 restart all" >> /usr/bin/srs
-    done
-	chmod +x /usr/bin/srs
 
 	rm -rf "/usr/bin/ssrr"
 	echo "#!/bin/bash" >> /usr/bin/ssrr
