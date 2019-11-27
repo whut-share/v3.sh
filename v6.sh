@@ -250,7 +250,7 @@ use_centos_pm2(){
     if [[ -e ${Gost_script} ]]; then
 		source ${Gost_script}
 		echo "#!/bin/bash" >> /usr/bin/grs
-		echo "pm2 list|grep relay |awk '{print $4}'|xargs pm2 restart" >> /usr/bin/grs
+		echo "pm2 list|grep relay|awk '{print \$4}'|xargs pm2 restart" >> /usr/bin/grs
 		chmod +x /usr/bin/grs
 	fi
 
@@ -325,6 +325,7 @@ use_centos_pm2(){
     echo '#DaliyJob' >> /var/spool/cron/root
     echo '1 */6 * * * pm2 flush 2>&1 > /dev/null' >> /var/spool/cron/root
     echo '2 3 */2 * * srs 2>&1 > /dev/null' >> /var/spool/cron/root
+	echo '6 3 * * * grs > /dev/null' >> /var/spool/cron/crontabs/root
     #清理缓存
     echo '5 3 * * * sync && echo 1 > /proc/sys/vm/drop_caches' >> /var/spool/cron/root
     echo '10 3 * * * sync && echo 2 > /proc/sys/vm/drop_caches' >> /var/spool/cron/root
@@ -393,7 +394,7 @@ use_debian_pm2(){
     if [[ -e ${Gost_script} ]]; then
 		source ${Gost_script}
 		echo "#!/bin/bash" >> /usr/bin/grs
-		echo "pm2 list|grep relay |awk '{print $4}'|xargs pm2 restart" >> /usr/bin/grs
+		echo "pm2 list|grep relay|awk '{print \$4}'|xargs pm2 restart" >> /usr/bin/grs
 		chmod +x /usr/bin/grs
 	fi
 
@@ -444,6 +445,7 @@ use_debian_pm2(){
     echo '#DaliyJob' >> /var/spool/cron/crontabs/root
     echo '1 */6 * * * pm2 flush 2>&1 > /dev/null' >> /var/spool/cron/crontabs/root
     echo '2 3 */2 * * srs > /dev/null' >> /var/spool/cron/crontabs/root
+	echo '6 3 * * * grs > /dev/null' >> /var/spool/cron/crontabs/root
     #清理缓存
     echo '5 3 * * * sync && echo 1 > /proc/sys/vm/drop_caches' >> /var/spool/cron/crontabs/root
     echo '10 3 * * * sync && echo 2 > /proc/sys/vm/drop_caches' >> /var/spool/cron/crontabs/root
