@@ -323,13 +323,13 @@ use_centos_pm2(){
     fi
     #PM2定时重启
     echo '#DaliyJob' >> /var/spool/cron/root
-    echo '1 */6 * * * pm2 flush 2>&1 > /dev/null' >> /var/spool/cron/root
-    echo '2 3 */2 * * srs 2>&1 > /dev/null' >> /var/spool/cron/root
-	echo '6 3 * * * grs > /dev/null' >> /var/spool/cron/root
+    echo '1 */6 * * * /usr/bin/pm2 flush 2>&1 > /dev/null' >> /var/spool/cron/root
+    echo '2 3 */2 * * /usr/bin/srs 2>&1 > /dev/null' >> /var/spool/cron/root
+	echo '6 3 * * * /usr/bin/grs > /dev/null' >> /var/spool/cron/root
     #清理缓存
-    echo '5 3 * * * sync && echo 1 > /proc/sys/vm/drop_caches' >> /var/spool/cron/root
-    echo '10 3 * * * sync && echo 2 > /proc/sys/vm/drop_caches' >> /var/spool/cron/root
-    echo '15 3 * * * sync && echo 3 > /proc/sys/vm/drop_caches' >> /var/spool/cron/root
+    echo '5 3 * * * /usr/bin/sync && echo 1 > /proc/sys/vm/drop_caches' >> /var/spool/cron/root
+    echo '10 3 * * * /usr/bin/sync && echo 2 > /proc/sys/vm/drop_caches' >> /var/spool/cron/root
+    echo '15 3 * * * /usr/bin/sync && echo 3 > /proc/sys/vm/drop_caches' >> /var/spool/cron/root
 	#重启cron并备份
     /sbin/service crond restart
     cp /var/spool/cron/root /var/spool/cron/v6root.bak
@@ -443,13 +443,13 @@ use_debian_pm2(){
     fi
     #PM2定时重启
     echo '#DaliyJob' >> /var/spool/cron/crontabs/root
-    echo '1 */6 * * * pm2 flush 2>&1 > /dev/null' >> /var/spool/cron/crontabs/root
-    echo '2 3 */2 * * srs > /dev/null' >> /var/spool/cron/crontabs/root
-	echo '6 3 * * * grs > /dev/null' >> /var/spool/cron/crontabs/root
+    echo '1 */6 * * * /usr/bin/pm2 flush 2>&1 > /dev/null' >> /var/spool/cron/crontabs/root
+    echo '2 3 */2 * * /usr/bin/srs > /dev/null' >> /var/spool/cron/crontabs/root
+	echo '6 3 * * * /usr/bin/grs > /dev/null' >> /var/spool/cron/crontabs/root
     #清理缓存
-    echo '5 3 * * * sync && echo 1 > /proc/sys/vm/drop_caches' >> /var/spool/cron/crontabs/root
-    echo '10 3 * * * sync && echo 2 > /proc/sys/vm/drop_caches' >> /var/spool/cron/crontabs/root
-    echo '15 3 * * * sync && echo 3 > /proc/sys/vm/drop_caches' >> /var/spool/cron/crontabs/root
+    echo '5 3 * * * /usr/bin/sync && echo 1 > /proc/sys/vm/drop_caches' >> /var/spool/cron/crontabs/root
+    echo '10 3 * * * /usr/bin/sync && echo 2 > /proc/sys/vm/drop_caches' >> /var/spool/cron/crontabs/root
+    echo '15 3 * * * /usr/bin/sync && echo 3 > /proc/sys/vm/drop_caches' >> /var/spool/cron/crontabs/root
     #cron重启
     service cron restart
     service cron reload
