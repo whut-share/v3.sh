@@ -305,7 +305,7 @@ use_centos_pm2(){
 	    echo "添加socks5定时启动"
         sleep 2s
         echo '###Socks5' >> /etc/cron.d/456cron
-        echo '* */1 * * * systemctl restart telegram 2>&1 > /dev/null' >> /etc/cron.d/456cron
+        echo '* */1 * * * root systemctl restart telegram 2>&1 > /dev/null' >> /etc/cron.d/456cron
     fi
     if [ ! -f /usr/local/gost/gostproxy ] ; then
         echo "未检测到gost"
@@ -313,17 +313,17 @@ use_centos_pm2(){
 	    echo "添加gost定时启动"
         sleep 2s
         echo '###Gost' >> /etc/cron.d/456cron
-        echo '0 3 * * * gost start 2>&1 > /dev/null' >> /etc/cron.d/456cron
+        echo '0 3 * * * root gost start 2>&1 > /dev/null' >> /etc/cron.d/456cron
     fi
     #PM2定时重启
     echo '#DaliyJob' >> /etc/cron.d/456cron
-    echo '1 */6 * * * /usr/bin/pm2 flush 2>&1 > /dev/null' >> /etc/cron.d/456cron
-    echo '2 3 */2 * * /usr/bin/srs 2>&1 > /dev/null' >> /etc/cron.d/456cron
-	echo '6 3 * * * /usr/bin/grs > /dev/null' >> /etc/cron.d/456cron
+    echo '1 */6 * * * root /usr/bin/pm2 flush 2>&1 > /dev/null' >> /etc/cron.d/456cron
+    echo '2 3 */2 * * root /usr/bin/srs 2>&1 > /dev/null' >> /etc/cron.d/456cron
+	echo '6 3 * * * root /usr/bin/grs > /dev/null' >> /etc/cron.d/456cron
     #清理缓存
-    echo '5 3 * * * /usr/bin/sync && echo 1 > /proc/sys/vm/drop_caches' >> /etc/cron.d/456cron
-    echo '10 3 * * * /usr/bin/sync && echo 2 > /proc/sys/vm/drop_caches' >> /etc/cron.d/456cron
-    echo '15 3 * * * /usr/bin/sync && echo 3 > /proc/sys/vm/drop_caches' >> /etc/cron.d/456cron
+    echo '5 3 * * * root /usr/bin/sync && echo 1 > /proc/sys/vm/drop_caches' >> /etc/cron.d/456cron
+    echo '10 3 * * * root /usr/bin/sync && echo 2 > /proc/sys/vm/drop_caches' >> /etc/cron.d/456cron
+    echo '15 3 * * * root /usr/bin/sync && echo 3 > /proc/sys/vm/drop_caches' >> /etc/cron.d/456cron
 	#重启cron并备份
     /sbin/service crond restart
     #查看cron进程
@@ -416,7 +416,7 @@ use_debian_pm2(){
 	    echo "添加DDNS定时启动"
         sleep 2s
         echo '###DDNS' >>  /etc/cron.d/456cron
-        echo '*/10 * * * * bash /root/ddns/cf-ddns.sh 2>&1 > /dev/null' >>  /etc/cron.d/456cron
+        echo '*/10 * * * * root bash /root/ddns/cf-ddns.sh 2>&1 > /dev/null' >>  /etc/cron.d/456cron
     fi
 
     if [ ! -f /usr/local/gost/gostproxy ] ; then
@@ -426,17 +426,17 @@ use_debian_pm2(){
 	    echo "添加gost定时启动"
         sleep 2s
         echo '###Gost' >>  /etc/cron.d/456cron
-        echo '0 1 * * * gost start 2>&1 > /dev/null' >>  /etc/cron.d/456cron
+        echo '0 1 * * * root gost start 2>&1 > /dev/null' >>  /etc/cron.d/456cron
     fi
     #PM2定时重启
     echo '#DaliyJob' >>  /etc/cron.d/456cron
-    echo '1 */6 * * * /usr/bin/pm2 flush 2>&1 > /dev/null' >>  /etc/cron.d/456cron
-    echo '2 3 */2 * * /usr/bin/srs > /dev/null' >>  /etc/cron.d/456cron
-	echo '6 3 * * * /usr/bin/grs > /dev/null' >>  /etc/cron.d/456cron
+    echo '1 */6 * * * root /usr/bin/pm2 flush 2>&1 > /dev/null' >>  /etc/cron.d/456cron
+    echo '2 3 */2 * * root /usr/bin/srs > /dev/null' >>  /etc/cron.d/456cron
+	echo '6 3 * * * root /usr/bin/grs > /dev/null' >>  /etc/cron.d/456cron
     #清理缓存
-    echo '5 3 * * * /usr/bin/sync && echo 1 > /proc/sys/vm/drop_caches' >>  /etc/cron.d/456cron
-    echo '10 3 * * * /usr/bin/sync && echo 2 > /proc/sys/vm/drop_caches' >>  /etc/cron.d/456cron
-    echo '15 3 * * * /usr/bin/sync && echo 3 > /proc/sys/vm/drop_caches' >>  /etc/cron.d/456cron
+    echo '5 3 * * * root /usr/bin/sync && echo 1 > /proc/sys/vm/drop_caches' >>  /etc/cron.d/456cron
+    echo '10 3 * * * root /usr/bin/sync && echo 2 > /proc/sys/vm/drop_caches' >>  /etc/cron.d/456cron
+    echo '15 3 * * * root /usr/bin/sync && echo 3 > /proc/sys/vm/drop_caches' >>  /etc/cron.d/456cron
     #cron重启
     service cron restart
     service cron reload
