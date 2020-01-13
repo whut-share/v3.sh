@@ -281,58 +281,51 @@ use_centos_pm2(){
         systemctl daemon-reload
     fi
 
-	rm -rf "/usr/bin/ssrr"
-	echo "#!/bin/bash" >> /usr/bin/ssrr
-	for ssr_name in "${ssr_names[@]}"
-	do
-	    echo "pm2 start /root/${ssr_name}/server.py --name $(echo ${ssr_name} | sed 's/shadowsocks-//') --max-memory-restart ${max_memory_limit}M  -o /dev/null -e /dev/null" >> /usr/bin/ssrr
-    done
-	chmod +x /usr/bin/ssrr
-
-    #创建pm2日志清理
-    if [ ! -f /var/spool/cron/root ] ; then
+    #创建crontab
+    if [ ! -f /etc/cron.d/456cron ] ; then
 	    echo "未设置定时任务"
 	else
-        cp "/var/spool/cron/root" "/var/spool/cron/root.bak"
-        rm -rf "/var/spool/cron/root"
+        rm -rf /etc/cron.d/456cron
     fi
+
+	echo 'SHELL=/bin/sh' >>  /etc/cron.d/456cron
+	echo 'PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin' >>  /etc/cron.d/456cron
 
     if [ ! -f /root/ddns/cf-ddns.sh ] ; then
         echo "未检测到cf-ddns.sh"
     else
 	    echo "添加DDNS定时启动"
         sleep 2s
-        echo '###DDNS' >> /var/spool/cron/root
-        echo '*/10 * * * * bash /root/ddns/cf-ddns.sh 2>&1 > /dev/null' >> /var/spool/cron/root
+        echo '###DDNS' >> /etc/cron.d/456cron
+        echo '*/10 * * * * root bash /root/ddns/cf-ddns.sh 2>&1 > /dev/null' >> /etc/cron.d/456cron
     fi
     if [ ! -f /root/Application/telegram-socks/server.js ] ; then
         echo "未检测到socks5"
     else
 	    echo "添加socks5定时启动"
         sleep 2s
-        echo '###Socks5' >> /var/spool/cron/root
-        echo '* */1 * * * systemctl restart telegram 2>&1 > /dev/null' >> /var/spool/cron/root
+        echo '###Socks5' >> /etc/cron.d/456cron
+        echo '* */1 * * * systemctl restart telegram 2>&1 > /dev/null' >> /etc/cron.d/456cron
     fi
     if [ ! -f /usr/local/gost/gostproxy ] ; then
         echo "未检测到gost"
     else
 	    echo "添加gost定时启动"
         sleep 2s
-        echo '###Gost' >> /var/spool/cron/root
-        echo '0 3 * * * gost start 2>&1 > /dev/null' > /var/spool/cron/root
+        echo '###Gost' >> /etc/cron.d/456cron
+        echo '0 3 * * * gost start 2>&1 > /dev/null' >> /etc/cron.d/456cron
     fi
     #PM2定时重启
-    echo '#DaliyJob' >> /var/spool/cron/root
-    echo '1 */6 * * * /usr/bin/pm2 flush 2>&1 > /dev/null' >> /var/spool/cron/root
-    echo '2 3 */2 * * /usr/bin/srs 2>&1 > /dev/null' >> /var/spool/cron/root
-	echo '6 3 * * * /usr/bin/grs > /dev/null' >> /var/spool/cron/root
+    echo '#DaliyJob' >> /etc/cron.d/456cron
+    echo '1 */6 * * * /usr/bin/pm2 flush 2>&1 > /dev/null' >> /etc/cron.d/456cron
+    echo '2 3 */2 * * /usr/bin/srs 2>&1 > /dev/null' >> /etc/cron.d/456cron
+	echo '6 3 * * * /usr/bin/grs > /dev/null' >> /etc/cron.d/456cron
     #清理缓存
-    echo '5 3 * * * /usr/bin/sync && echo 1 > /proc/sys/vm/drop_caches' >> /var/spool/cron/root
-    echo '10 3 * * * /usr/bin/sync && echo 2 > /proc/sys/vm/drop_caches' >> /var/spool/cron/root
-    echo '15 3 * * * /usr/bin/sync && echo 3 > /proc/sys/vm/drop_caches' >> /var/spool/cron/root
+    echo '5 3 * * * /usr/bin/sync && echo 1 > /proc/sys/vm/drop_caches' >> /etc/cron.d/456cron
+    echo '10 3 * * * /usr/bin/sync && echo 2 > /proc/sys/vm/drop_caches' >> /etc/cron.d/456cron
+    echo '15 3 * * * /usr/bin/sync && echo 3 > /proc/sys/vm/drop_caches' >> /etc/cron.d/456cron
 	#重启cron并备份
     /sbin/service crond restart
-    cp /var/spool/cron/root /var/spool/cron/v6root.bak
     #查看cron进程
     crontab -l
     sleep 2s
@@ -407,29 +400,23 @@ use_debian_pm2(){
         /usr/bin/chattr -i /etc/resolv.conf && wget -N https://github.com/Super-box/v3/raw/master/resolv.conf -P /etc && /usr/bin/chattr +i /etc/resolv.conf
     fi
 
-	rm -rf "/usr/bin/ssrr"
-	echo "#!/bin/bash" >> /usr/bin/ssrr
-	for ssr_name in "${ssr_names[@]}"
-	do
-	    echo "pm2 start /root/${ssr_name}/server.py --name $(echo ${ssr_name} | sed 's/shadowsocks-//') --max-memory-restart ${max_memory_limit}M  -o /dev/null -e /dev/null" >> /usr/bin/ssrr
-    done
-	chmod +x /usr/bin/ssrr
-
-    #创建pm2日志清理
-    if [ ! -f /var/spool/cron/crontabs/root ] ; then
+    #创建crontab任务
+    if [ ! -f /etc/cron.d/456cron ] ; then
 	    echo "未部署定时任务"
 	else
-        cp "/var/spool/cron/crontabs/root" "/var/spool/cron/crontabs/root.bak"
-        rm -rf "/var/spool/cron/crontabs/root"
+        rm -rf /etc/cron.d/456cron
     fi
 
+	echo 'SHELL=/bin/bash' >>  /etc/cron.d/456cron
+	echo 'PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin' >>  /etc/cron.d/456cron
+
     if [ ! -f /root/ddns/cf-ddns.sh ] ; then
-            echo "未检测到cf-ddns.sh"
+    	echo "未检测到cf-ddns.sh"
     else
 	    echo "添加DDNS定时启动"
         sleep 2s
-        echo '###DDNS' >> /var/spool/cron/crontabs/root
-        echo '*/10 * * * * bash /root/ddns/cf-ddns.sh 2>&1 > /dev/null' >> /var/spool/cron/crontabs/root
+        echo '###DDNS' >>  /etc/cron.d/456cron
+        echo '*/10 * * * * bash /root/ddns/cf-ddns.sh 2>&1 > /dev/null' >>  /etc/cron.d/456cron
     fi
 
     if [ ! -f /usr/local/gost/gostproxy ] ; then
@@ -438,22 +425,22 @@ use_debian_pm2(){
     	#Gost定时重启
 	    echo "添加gost定时启动"
         sleep 2s
-        echo '###Gost' >> /var/spool/cron/crontabs/root
-        echo '0 1 * * * gost start 2>&1 > /dev/null' >> /var/spool/cron/crontabs/root
+        echo '###Gost' >>  /etc/cron.d/456cron
+        echo '0 1 * * * gost start 2>&1 > /dev/null' >>  /etc/cron.d/456cron
     fi
     #PM2定时重启
-    echo '#DaliyJob' >> /var/spool/cron/crontabs/root
-    echo '1 */6 * * * /usr/bin/pm2 flush 2>&1 > /dev/null' >> /var/spool/cron/crontabs/root
-    echo '2 3 */2 * * /usr/bin/srs > /dev/null' >> /var/spool/cron/crontabs/root
-	echo '6 3 * * * /usr/bin/grs > /dev/null' >> /var/spool/cron/crontabs/root
+    echo '#DaliyJob' >>  /etc/cron.d/456cron
+    echo '1 */6 * * * /usr/bin/pm2 flush 2>&1 > /dev/null' >>  /etc/cron.d/456cron
+    echo '2 3 */2 * * /usr/bin/srs > /dev/null' >>  /etc/cron.d/456cron
+	echo '6 3 * * * /usr/bin/grs > /dev/null' >>  /etc/cron.d/456cron
     #清理缓存
-    echo '5 3 * * * /usr/bin/sync && echo 1 > /proc/sys/vm/drop_caches' >> /var/spool/cron/crontabs/root
-    echo '10 3 * * * /usr/bin/sync && echo 2 > /proc/sys/vm/drop_caches' >> /var/spool/cron/crontabs/root
-    echo '15 3 * * * /usr/bin/sync && echo 3 > /proc/sys/vm/drop_caches' >> /var/spool/cron/crontabs/root
+    echo '5 3 * * * /usr/bin/sync && echo 1 > /proc/sys/vm/drop_caches' >>  /etc/cron.d/456cron
+    echo '10 3 * * * /usr/bin/sync && echo 2 > /proc/sys/vm/drop_caches' >>  /etc/cron.d/456cron
+    echo '15 3 * * * /usr/bin/sync && echo 3 > /proc/sys/vm/drop_caches' >>  /etc/cron.d/456cron
     #cron重启
     service cron restart
     service cron reload
-    cp /var/spool/cron/crontabs/root /var/spool/cron/crontabs/v6root.bak
+
     #查看cron进程
     crontab -l
     sleep 2s
