@@ -315,6 +315,15 @@ use_centos_pm2(){
         echo '###Gost' >> /etc/cron.d/456cron
         echo '0 3 * * * root gost start 2>&1 > /dev/null' >> /etc/cron.d/456cron
     fi
+
+	if [ ! -f /root/rclone.cron ] ; then
+        echo "未检测到rclone"
+    else
+	    echo "添加rclone定时同步"
+        sleep 2s
+        echo '###rclone' >> /etc/cron.d/456cron
+        cat /root/rclone.cron >> /etc/cron.d/456cron
+    fi
     #PM2定时重启
     echo '#DaliyJob' >> /etc/cron.d/456cron
     echo '1 */6 * * * root /usr/bin/pm2 flush 2>&1 > /dev/null' >> /etc/cron.d/456cron
@@ -428,6 +437,16 @@ use_debian_pm2(){
         echo '###Gost' >>  /etc/cron.d/456cron
         echo '0 1 * * * root gost start 2>&1 > /dev/null' >>  /etc/cron.d/456cron
     fi
+
+	if [ ! -f /root/rclone.cron ] ; then
+        echo "未检测到rclone"
+    else
+	    echo "添加rclone定时同步"
+        sleep 2s
+        echo '###rclone' >> /etc/cron.d/456cron
+        cat /root/rclone.cron >> /etc/cron.d/456cron
+    fi
+	
     #PM2定时重启
     echo '#DaliyJob' >>  /etc/cron.d/456cron
     echo '1 */6 * * * root /usr/bin/pm2 flush 2>&1 > /dev/null' >>  /etc/cron.d/456cron
