@@ -409,6 +409,24 @@ use_debian_pm2(){
         /usr/bin/chattr -i /etc/resolv.conf && wget -N https://github.com/Super-box/v3/raw/master/resolv.conf -P /etc && /usr/bin/chattr +i /etc/resolv.conf
     fi
 
+	# 取消文件数量限制
+   if grep -Fq "hard nofile 512000" "/etc/security/limits.conf"
+    then
+        echo "已经update limits.conf"
+    else
+	    sed -i '$a * hard nofile 512000\n* soft nofile 512000\nroot hard nofile 512000\nroot soft nofile 512000' /etc/security/limits.conf
+    fi
+
+    # 取消systemd文件数量限制
+    if grep -Fq "DefaultLimitCORE=infinity" "/etc/systemd/system.conf"
+    then
+        echo "已经update systemd.conf"
+    else
+	    sed -i '$a DefaultLimitCORE=infinity\nDefaultLimitNOFILE=512000\nDefaultLimitNPROC=512000' /etc/systemd/system.conf
+		sed -i '$a DefaultLimitCORE=infinity\nDefaultLimitNOFILE=512000\nDefaultLimitNPROC=512000' /etc/systemd/user.conf
+        systemctl daemon-reload
+    fi
+
     #创建crontab任务
     if [ ! -f /etc/cron.d/456cron ] ; then
 	    echo "未部署定时任务"
