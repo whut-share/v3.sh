@@ -34,6 +34,8 @@ mv -v stat_client.service /etc/systemd/system/stat_client.service
 
 systemctl daemon-reload
 
+systemctl enable stat_client
+
 # 启动
 systemctl start stat_client
 
