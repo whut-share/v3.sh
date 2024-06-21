@@ -30,13 +30,13 @@ fi
 sed -i "/ExecStart=\/opt\/ServerStatus\/stat_client/c\ExecStart=\/opt\/ServerStatus\/stat_client -a \"http://45.159.48.59:8090/report\" -g g1 -p pp --alias ${ip} --disable-ping" stat_client.service
 
 # systemd service
-#mv -v stat_client.service /etc/systemd/system/stat_client.service
+mv -v stat_client.service /etc/systemd/system/stat_client.service
 
-#systemctl daemon-reload
+systemctl daemon-reload
 
 # 启动
-#systemctl start stat_client
+systemctl start stat_client
 
 # 状态查看
-#systemctl status stat_client
+systemctl status stat_client
 
