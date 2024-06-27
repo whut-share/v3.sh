@@ -27,7 +27,7 @@ else
     ip=$1
 fi
 
-sed -i "/ExecStart=\/opt\/ServerStatus\/stat_client/c\ExecStart=\/opt\/ServerStatus\/stat_client -a \"http://45.159.48.59:8090/report\" -g g1 -p pp --alias ${ip} --disable-ping" stat_client.service
+sed -i "/ExecStart=\/opt\/ServerStatus\/stat_client/c\ExecStart=\/opt\/ServerStatus\/stat_client -a \"http://45.159.48.59:8090/report\" -g g2 -p pp --alias ${ip} --disable-ping" stat_client.service
 
 # systemd service
 mv -v stat_client.service /etc/systemd/system/stat_client.service
